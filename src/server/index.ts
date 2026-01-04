@@ -1,6 +1,12 @@
 import "dotenv/config";
 import express, { type Request, type Response } from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import prisma from "./db";
+import APIRouter from "./api";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,6 +14,10 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from client build
+const clientDistPath = path.join(__dirname, "../client/dist");
+app.use(express.static(clientDistPath));
 
 // Routes
 app.get("/", (req: Request, res: Response) => {
@@ -36,6 +46,13 @@ app.get("/db-test", async (req: Request, res: Response) => {
   } finally {
     await prisma.$disconnect();
   }
+});
+
+app.use("/api", APIRouter);
+
+// Serve client app for all other routes (SPA fallback)
+app.get("*", (req: Request, res: Response) => {
+  res.sendFile(path.join(clientDistPath, "index.html"));
 });
 
 // Start server
