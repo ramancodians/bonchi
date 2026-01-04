@@ -7,12 +7,12 @@ import TextInput from "../components/FormElements/TextInput";
 import { useRegisterUserMutation } from "../hooks/mutations";
 
 interface RegisterFormData {
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  phoneNumber: string;
+  mobile: string;
   password: string;
-  confirmPassword: string;
+  confirm_password: string;
 }
 
 export default function Register() {
@@ -23,8 +23,8 @@ export default function Register() {
   });
 
   const onSubmit = (data: RegisterFormData) => {
-    if (data.password !== data.confirmPassword) {
-      form.setError("confirmPassword", {
+    if (data.password !== data.confirm_password) {
+      form.setError("confirm_password", {
         type: "manual",
         message: "Passwords do not match",
       });
@@ -79,8 +79,8 @@ export default function Register() {
                     label="First Name"
                     type="text"
                     placeholder="First name"
-                    error={form.formState.errors.firstName?.message}
-                    {...form.register("firstName", {
+                    error={form.formState.errors.first_name?.message}
+                    {...form.register("first_name", {
                       required: "First name is required",
                       minLength: {
                         value: 2,
@@ -93,8 +93,8 @@ export default function Register() {
                     label="Last Name"
                     type="text"
                     placeholder="Last name"
-                    error={form.formState.errors.lastName?.message}
-                    {...form.register("lastName", {
+                    error={form.formState.errors.last_name?.message}
+                    {...form.register("last_name", {
                       required: "Last name is required",
                       minLength: {
                         value: 2,
@@ -124,8 +124,8 @@ export default function Register() {
                   label="Phone Number"
                   type="tel"
                   placeholder="10 digit mobile number"
-                  error={form.formState.errors.phoneNumber?.message}
-                  {...form.register("phoneNumber", {
+                  error={form.formState.errors.mobile?.message}
+                  {...form.register("mobile", {
                     required: "Phone number is required",
                     pattern: {
                       value: /^[6-9]\d{9}$/,
@@ -154,8 +154,8 @@ export default function Register() {
                     label="Confirm Password"
                     type="password"
                     placeholder="Re-enter password"
-                    error={form.formState.errors.confirmPassword?.message}
-                    {...form.register("confirmPassword", {
+                    error={form.formState.errors.confirm_password?.message}
+                    {...form.register("confirm_password", {
                       required: "Please confirm your password",
                     })}
                   />

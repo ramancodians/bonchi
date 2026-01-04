@@ -45,20 +45,13 @@ AuthRouter.post("/register", async (req, res) => {
     }
 
     // Create user with hashed password
-    const { password, ...userDataWithoutPassword } = validatedData;
+    const { password, confirm_password, ...userDataWithoutPassword } =
+      validatedData;
 
     // TODO: Save user to database
     const user = await prisma.user.create({
       data: {
         ...userDataWithoutPassword,
-        gender: userDataWithoutPassword.gender.toUpperCase() as
-          | "MALE"
-          | "FEMALE"
-          | "OTHER",
-        ayushmanCardAvailable:
-          userDataWithoutPassword.ayushmanCardAvailable.toUpperCase() as
-            | "YES"
-            | "NO",
         ...(hashedPassword && { password: hashedPassword }),
       },
     });
