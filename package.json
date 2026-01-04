@@ -4,6 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
+    "install-all": "bun install && cd src/client && bun install",
     "dev": "bun run --watch src/index.ts",
     "dev-server": "bun run --watch src/index.ts",
     "dev-client": "cd src/client && bun run dev",
