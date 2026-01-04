@@ -11,29 +11,57 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-enum Role {
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum UserType {
   CUSTOMER
   BONCHI_MITRA
+  ADMIN
+
 }
 
 model User {
-  id             String    @id @default(cuid())
-  created_at      DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
-  email          String    @unique
-  first_name
-  password       String?
-  role           Role      @default(CUSTOMER)
-  age          Int?
-  dob        DateTime?
-  phone_number  String?
-  street_address String?
-  city          String?
-  state         String?
-  pincode      String?
-  country       String?
+  id                      String    @id @default(cuid())
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
   
-
+  // Basic Information
+  name                    String
+  guardian_name           String
+  gender                  Gender
+  age                     Int
+  mobile                  String    @unique
+  
+  // Address Information
+  village                 String
+  block                   String
+  district                String
+  state                   String
+  pincode                 String?
+  
+  // Additional Information
+  ayushman_card_available Boolean   @default(false)
+  illness                 String?
+  
+  // Consent & Terms
+  customer_consent        Boolean   @default(false)
+  terms_accepted          Boolean   @default(false)
+  
+  // Authentication
+  password                String?
+  role                    UserType  @default(CUSTOMER)
+  
+  @@index([mobile])
+  @@index([district])
+  @@index([state])
 }
+
+

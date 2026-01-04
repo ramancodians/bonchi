@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import express, { type Request, type Response } from "express";
+import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import prisma from "./db";
@@ -14,6 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
