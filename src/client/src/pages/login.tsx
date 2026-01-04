@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import loginBackground from "../assets/login-background.png";
 import TextInput from "../components/FormElements/TextInput";
-import RadioButton from "../components/FormElements/RadioButton";
 
 type LoginType = "email" | "phone";
 
