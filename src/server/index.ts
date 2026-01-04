@@ -1,12 +1,14 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import express, { type Request, type Response } from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import prisma from "./db";
 import APIRouter from "./api";
 
+// Load .env from project root
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, "../../.env") });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
