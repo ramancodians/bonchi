@@ -16,7 +16,6 @@ enum Gender {
   MALE
   FEMALE
   OTHER
-  UNKNOWN
 }
 
 enum AyushmanCardStatus {
@@ -34,7 +33,7 @@ model User {
   last_name     String    @default("")
   email         String?   @unique
   guardian_name String?
-  gender        Gender?   @default(UNKNOWN)
+  gender        Gender?
   age           Int?
   mobile        String    @unique
   dob           DateTime?
