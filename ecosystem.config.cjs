@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "bonchi-v3",
+      name: "Bonchi Portal",
       script: "bun",
       args: "run src/index.ts",
       cwd: "./",
