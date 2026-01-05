@@ -1,21 +1,36 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
+
 import { ToastContainer } from "react-toastify";
 import Login from "./pages/login";
 import Register from "./pages/registration";
-
-const queryClient = new QueryClient();
+import Dashboard from "./pages/dashboard";
+import { useUser } from "./hooks/query";
+import { useEffect } from "react";
 
 function App() {
+  const navigate = useNavigate();
+  const { data: userData } = useUser();
+
+  useEffect(() => {
+    if (userData) {
+      console.log("User data fetched:", userData.data);
+    }
+  }, [userData]);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
+    <>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard/*" element={<Dashboard />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
       <ToastContainer
         position="bottom-left"
         autoClose={5000}
@@ -27,7 +42,7 @@ function App() {
         draggable
         pauseOnHover
       />
-    </QueryClientProvider>
+    </>
   );
 }
 

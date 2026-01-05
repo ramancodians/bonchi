@@ -12,6 +12,7 @@ import {
 import { z } from "zod";
 import prisma from "../../db";
 import bcrypt from "bcrypt";
+import { authMiddleware } from "../../middleware/authmiddleware";
 
 const AuthRouter = Router();
 
@@ -53,6 +54,7 @@ AuthRouter.post("/register", async (req, res) => {
       data: {
         ...userDataWithoutPassword,
         ...(hashedPassword && { password: hashedPassword }),
+        gender: "OTHER", // Default gender
       },
     });
 
@@ -86,6 +88,34 @@ AuthRouter.post("/register", async (req, res) => {
     console.error("Registration error:", error);
     sendErrorResponse(res, {
       message: "An error occurred during registration",
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
+
+AuthRouter.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        id: req.userInfo.id,
+      },
+    });
+    if (!user) {
+      return sendErrorResponse(res, {
+        message: "User not found",
+        status: 404,
+      });
+    }
+
+    sendSuccessResponse(res, {
+      data: user,
+      status: 200,
+    });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    sendErrorResponse(res, {
+      message: "An error occurred while fetching user profile",
       status: 500,
       error: error instanceof Error ? error.message : "Unknown error",
     });

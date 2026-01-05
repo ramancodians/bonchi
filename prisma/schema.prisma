@@ -50,10 +50,47 @@ model User {
   ayushmanCardAvailable AyushmanCardStatus?
 
   // Consent
-  customerConsent Boolean @default(false)
-  termsAccepted   Boolean @default(false)
+  customerConsent       Boolean                @default(false)
+  termsAccepted         Boolean                @default(false)
+  operationSupportForms OperationSupportForm[]
 
   @@index([mobile])
   @@index([email])
   @@map("users")
+}
+
+model OperationSupportForm {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Foreign Key to User
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  // Personal Information
+  patient_name String
+  age          Int?
+  gender       Gender? @default(OTHER)
+  relationship String?
+
+  // Contact Information
+  hospital_name         String?
+  doctor_name           String?
+  expected_surgery_date DateTime?
+  type_of_surgery       String?
+  estimated_cost        Int?
+
+  // Financial Information
+  monthly_income             Int?
+  number_of_dependents       Int?
+  has_insurance              Boolean? @default(false)
+  required_support_percetage Int?
+
+  // Additional Information
+  additional_details String?
+  is_terms_accepted  Boolean @default(false)
+
+  @@index([user_id])
+  @@map("operation_support_forms")
 }

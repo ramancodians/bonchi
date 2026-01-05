@@ -1,9 +1,11 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 axios.interceptors.request.use(
   (config) => {
     const authToken = cookies.get("AUTH_TOKEN");
+    console.log("Axios request config:", authToken);
     if (authToken) {
       config.headers["Authorization"] = `Bearer ${authToken}`;
       config.headers["Content-Type"] = "application/json";
@@ -11,22 +13,8 @@ axios.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
-  }
-);
-
-axios.interceptors.response.use(
-  function (response) {
-    return response;
-  },
-  function (error) {
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with response error
-    console.log("Axios response error:", error);
-    // if (status === 401 && !isPublicPath()) {
-    //   window.localStorage.removeItem("AUTH_TOKEN");
-    //   window.location = "/login";
-    // }
+    console.log("Axios request error:", error);
+    toast.error("Request failed. Please try again.");
     return Promise.reject(error);
   }
 );

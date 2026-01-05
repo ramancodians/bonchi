@@ -1,10 +1,12 @@
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import cookies from "js-cookie";
 import Logo from "./../assets/logo.png";
 import loginBackground from "../assets/login-background.png";
 import TextInput from "../components/FormElements/TextInput";
 import { useRegisterUserMutation } from "../hooks/mutations";
+import { toast } from "react-toastify";
 
 interface RegisterFormData {
   first_name: string;
@@ -34,9 +36,11 @@ export default function Register() {
     createUserMutation.mutate(data, {
       onSuccess: (response) => {
         console.log("User registered successfully:", response.data);
+        cookies.set("AUTH_TOKEN", response.data.data?.token);
       },
       onError: (error) => {
-        console.error("Error registering user:", error);
+        toast.error(error?.response?.data?.message || "Registration failed");
+        console.log("Error registering user:", error);
       },
     });
   };
