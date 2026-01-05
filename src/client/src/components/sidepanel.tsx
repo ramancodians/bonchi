@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import cookies from "js-cookie";
 import {
   AiOutlineHome,
   AiOutlineCalendar,
@@ -8,6 +9,8 @@ import {
   AiOutlineLogout,
 } from "react-icons/ai";
 import Logo from "./../assets/logo.png";
+import { useUser } from "../hooks/query";
+import { getFullName } from "../utils/formattingUtils";
 
 interface NavItem {
   name: string;
@@ -17,6 +20,7 @@ interface NavItem {
 
 const SidePanel = () => {
   const location = useLocation();
+  const { data: userData } = useUser();
 
   const navItems: NavItem[] = [
     {
@@ -44,10 +48,12 @@ const SidePanel = () => {
   const handleLogout = () => {
     // Add logout logic here
     console.log("Logout clicked");
+    cookies.remove("AUTH_TOKEN");
+    window.location.href = "/login";
   };
 
   return (
-    <div className="flex flex-col h-screen w-64 bg-white border-r border-gray-200">
+    <div className="flex flex-col h-screen w-64 bg-white border-r border-gray-200 overflow-y-auto">
       {/* Logo Section */}
       <div className="flex items-center justify-center p-6 border-b border-gray-200">
         <img src={Logo} alt="Bonchi Cares Logo" className="w-12 h-12" />
@@ -87,7 +93,9 @@ const SidePanel = () => {
             </div>
           </div>
           <div className="ml-3">
-            <p className="font-semibold text-gray-800">Shahbaz Ansari</p>
+            <p className="font-semibold text-gray-800">
+              {getFullName(userData)}
+            </p>
             <p className="text-sm text-gray-500">User</p>
           </div>
         </div>

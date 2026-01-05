@@ -16,7 +16,79 @@ import { authMiddleware } from "../../middleware/authmiddleware";
 
 const AuthRouter = Router();
 
-AuthRouter.post("/sign-in", async (req, res) => {});
+AuthRouter.post("/login", async (req, res) => {
+  try {
+    const { emailOrPhone, password } = req.body;
+
+    // Validate input
+    if (!emailOrPhone || !password) {
+      return sendErrorResponse(res, {
+        message: "Email/Phone and password are required",
+        status: 400,
+      });
+    }
+
+    // Determine if input is email or phone
+    const isPhone = /^[6-9]\d{9}$/.test(emailOrPhone);
+
+    // Find user by email or phone
+    const user = await prisma.user.findFirst({
+      where: isPhone
+        ? { mobile: emailOrPhone }
+        : { email: emailOrPhone.toLowerCase() },
+    });
+
+    if (!user) {
+      return sendErrorResponse(res, {
+        message: "Invalid email/phone or password",
+        status: 401,
+      });
+    }
+
+    // Verify password
+    if (!user.password) {
+      return sendErrorResponse(res, {
+        message: "Invalid email or password",
+        status: 401,
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return sendErrorResponse(res, {
+        message: "Invalid email or password",
+        status: 401,
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET || "default_secret",
+      { expiresIn: "7d" }
+    );
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = user;
+
+    sendSuccessResponse(res, {
+      data: {
+        message: "Login successful",
+        user: userWithoutPassword,
+        token,
+      },
+      status: 200,
+    });
+  } catch (error) {
+    console.error("Sign-in error:", error);
+    sendErrorResponse(res, {
+      message: "An error occurred during sign-in",
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
 
 AuthRouter.post("/register", async (req, res) => {
   try {

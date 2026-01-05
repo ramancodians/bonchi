@@ -12,14 +12,14 @@ import Register from "./pages/registration";
 import Dashboard from "./pages/dashboard";
 import { useUser } from "./hooks/query";
 import { useEffect } from "react";
+import PartnerRegistration from "./pages/partner-registration";
 
 function App() {
-  const navigate = useNavigate();
   const { data: userData } = useUser();
 
   useEffect(() => {
     if (userData) {
-      console.log("User data fetched:", userData.data);
+      console.log("User data fetched:", userData);
     }
   }, [userData]);
 
@@ -29,6 +29,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard/*" element={<Dashboard />} />
+        <Route path="/register-partner" element={<PartnerRegistration />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
       <ToastContainer

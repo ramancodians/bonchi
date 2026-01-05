@@ -5,4 +5,6 @@ import { API_ENDPOINT } from "../config/consts";
 export const registerUserAPI = async (payload) =>
   axios.post(`${API_ENDPOINT}/auth/register`, payload);
 export const getUserProfileAPI = async () =>
-  axios.get(`${API_ENDPOINT}/auth/me`);
+  (await axios.get(`${API_ENDPOINT}/auth/me`)).data?.data;
+export const loginUserAPI = async (payload) =>
+  axios.post(`${API_ENDPOINT}/auth/login`, payload);

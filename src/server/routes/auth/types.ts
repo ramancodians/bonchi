@@ -29,3 +29,14 @@ export const registerUserSchema = z
 
 // Type inference from schema
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
+
+// Login validation schema
+export const loginUserSchema = z.object({
+  emailOrPhone: z.string().min(1, "Email or phone number is required"),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .max(100, "Password must be less than 100 characters"),
+});
+
+export type LoginUserInput = z.infer<typeof loginUserSchema>;

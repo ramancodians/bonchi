@@ -1,40 +1,45 @@
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import loginBackground from "../assets/login-background.png";
+import Logo from "./../assets/logo.png";
 import TextInput from "../components/FormElements/TextInput";
+import { useLoginMutation } from "../hooks/mutations";
+import { setAuthToken } from "../utils/cookies";
+import { toast } from "react-toastify";
 
-type LoginType = "email" | "phone";
-
-interface EmailLoginFormData {
-  email: string;
+interface LoginFormData {
+  emailOrPhone: string;
   password: string;
 }
 
-interface PhoneLoginFormData {
-  phone: string;
-}
-
 export default function Login() {
-  const [loginType, setLoginType] = useState<LoginType>("email");
-
-  const emailForm = useForm<EmailLoginFormData>({
+  const navigate = useNavigate();
+  const { register, handleSubmit, formState } = useForm<LoginFormData>({
     mode: "onChange",
   });
 
-  const phoneForm = useForm<PhoneLoginFormData>({
-    mode: "onChange",
-  });
+  const loginMutation = useLoginMutation();
 
-  const onEmailSubmit = (data: EmailLoginFormData) => {
-    console.log("Email login:", data);
-    // Implement email login logic here
-  };
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const response = await loginMutation.mutateAsync(data);
+      const { token, user } = response.data.data;
 
-  const onPhoneSubmit = (data: PhoneLoginFormData) => {
-    console.log("Phone login:", data);
-    // Implement phone OTP login logic here
+      // Save token to cookies
+      setAuthToken(token);
+
+      // Show success message
+      toast.success(`Welcome back, ${user.first_name}!`);
+
+      // Redirect to dashboard
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.error("Login error:", error);
+      const errorMessage =
+        error.response?.data?.message || "Login failed. Please try again.";
+      toast.error(errorMessage);
+    }
   };
 
   return (
@@ -48,130 +53,70 @@ export default function Login() {
       >
         <div className="card w-96 bg-base-100 shadow-xl">
           <div className="card-body">
+            <img
+              src={Logo}
+              alt="Bonchi Cares"
+              className="w-20 h-20 mx-auto mb-4"
+            />
             <h2 className="card-title justify-center text-2xl mb-4">Login</h2>
 
-            {/* Login Type Selector */}
-            <div className="tabs tabs-boxed mb-4">
+            {/* Email/Phone Login Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <TextInput
+                label="Email or Phone"
+                type="text"
+                placeholder="Enter your email or phone number"
+                error={formState.errors.emailOrPhone?.message}
+                {...register("emailOrPhone", {
+                  required: "Email or phone number is required",
+                  validate: (value) => {
+                    const isEmail =
+                      /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value);
+                    const isPhone = /^[6-9]\d{9}$/.test(value);
+                    return (
+                      isEmail ||
+                      isPhone ||
+                      "Please enter a valid email or 10-digit phone number"
+                    );
+                  },
+                })}
+              />
+
+              <TextInput
+                label="Password"
+                type="password"
+                placeholder="Enter your password"
+                error={formState.errors.password?.message}
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                })}
+              />
+
               <button
-                className={`tab ${loginType === "email" ? "tab-active" : ""}`}
-                onClick={() => setLoginType("email")}
+                type="submit"
+                className="btn btn-primary w-full"
+                disabled={loginMutation.isPending}
               >
-                Email
+                {loginMutation.isPending ? (
+                  <span className="loading loading-spinner"></span>
+                ) : (
+                  "Login"
+                )}
               </button>
-              <button
-                className={`tab ${loginType === "phone" ? "tab-active" : ""}`}
-                onClick={() => setLoginType("phone")}
-              >
-                Phone
-              </button>
-            </div>
-
-            {/* Email Login Form */}
-            {loginType === "email" && (
-              <form
-                onSubmit={emailForm.handleSubmit(onEmailSubmit)}
-                className="space-y-4"
-              >
-                <TextInput
-                  label="Email"
-                  type="email"
-                  placeholder="Enter your email"
-                  error={emailForm.formState.errors.email?.message}
-                  {...emailForm.register("email", {
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: "Invalid email address",
-                    },
-                  })}
-                />
-
-                <TextInput
-                  label="Password"
-                  type="password"
-                  placeholder="Enter your password"
-                  error={emailForm.formState.errors.password?.message}
-                  {...emailForm.register("password", {
-                    required: "Password is required",
-                    minLength: {
-                      value: 6,
-                      message: "Password must be at least 6 characters",
-                    },
-                  })}
-                />
-
-                <button
-                  type="submit"
-                  className="btn btn-primary w-full"
-                  disabled={emailForm.formState.isSubmitting}
-                >
-                  {emailForm.formState.isSubmitting ? (
-                    <span className="loading loading-spinner"></span>
-                  ) : (
-                    "Login"
-                  )}
-                </button>
-              </form>
-            )}
-
-            {/* Phone Login Form */}
-            {loginType === "phone" && (
-              <form
-                onSubmit={phoneForm.handleSubmit(onPhoneSubmit)}
-                className="space-y-4"
-              >
-                <TextInput
-                  label="Phone Number"
-                  type="tel"
-                  placeholder="Enter your phone number"
-                  error={phoneForm.formState.errors.phone?.message}
-                  {...phoneForm.register("phone", {
-                    required: "Phone number is required",
-                    pattern: {
-                      value: /^[6-9]\d{9}$/,
-                      message: "Invalid Indian phone number",
-                    },
-                  })}
-                />
-
-                <div className="alert alert-info">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    className="stroke-current shrink-0 w-6 h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    ></path>
-                  </svg>
-                  <span className="text-sm">
-                    Enter 10-digit Indian mobile number
-                  </span>
-                </div>
-
-                <button
-                  type="submit"
-                  className="btn btn-primary w-full"
-                  disabled={phoneForm.formState.isSubmitting}
-                >
-                  {phoneForm.formState.isSubmitting ? (
-                    <span className="loading loading-spinner"></span>
-                  ) : (
-                    "Send OTP"
-                  )}
-                </button>
-              </form>
-            )}
+            </form>
 
             <div className="divider"></div>
 
-            <div className="text-center">
+            <div className="text-center flex flex-col">
               <Link to="/register" className="link link-primary">
                 Don't have an account? Register
+              </Link>
+              <Link to="/register-partner" className="link link-primary">
+                Register as Partner
               </Link>
             </div>
           </div>

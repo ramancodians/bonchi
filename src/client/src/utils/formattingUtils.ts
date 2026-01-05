@@ -1,0 +1,4 @@
+export const getFullName = (user: {
+  first_name?: string;
+  last_name?: string;
+}) => `${user?.first_name} ${user?.last_name}`;

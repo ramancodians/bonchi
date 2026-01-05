@@ -37,6 +37,7 @@ export default function Register() {
       onSuccess: (response) => {
         console.log("User registered successfully:", response.data);
         cookies.set("AUTH_TOKEN", response.data.data?.token);
+        window.location.href = "/dashboard";
       },
       onError: (error) => {
         toast.error(error?.response?.data?.message || "Registration failed");
