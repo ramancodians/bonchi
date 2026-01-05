@@ -3,7 +3,6 @@ import {
   AiOutlineCalendar,
   AiOutlineGift,
   AiOutlineMedicineBox,
-  AiOutlinePhone,
 } from "react-icons/ai";
 import { FaWhatsapp } from "react-icons/fa";
 import Logo from "./../../../assets/logo.png";
