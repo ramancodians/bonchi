@@ -1,6 +1,6 @@
 export interface UserInfo {
-  mobile: string;
-  id: string;
+  userId: string;
+  email: string;
 }
 
 declare global {

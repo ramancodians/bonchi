@@ -11,7 +11,6 @@ import { useUser } from "../../../hooks/query";
 const CustomerDashboard = () => {
   const { data: userData, isLoading } = useUser();
 
-  const userName = "Shahbaz";
   const cardNumber = "BON6 0501 7";
   const expiryDate = "Nov 2030";
   const appointmentsCount = 0;
