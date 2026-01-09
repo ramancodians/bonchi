@@ -6,11 +6,12 @@
   "scripts": {
     "install-all": "bun install && cd src/client && npm install",
     "nvm": "nvm use 22.15.0",
+    "nvm": "nvm use 22.15.0",
     "dev": "bun run --watch src/index.ts",
     "dev-server": "bun run --watch src/index.ts",
     "dev-client": "cd src/client && bun run dev",
     "build": "cd src/client && bun run build",
-    "serve": "nvm use 22.15.0 && npm run install-all && npm run db:generate && npm run build && bun run start",
+    "serve": "npm run nvm && npm run install-all && npm run db:generate && npm run build && bun run start",
     "start": "pm2 start ecosystem.config.cjs || pm2 restart Bonchi\\ Portal",
     "stop": "pm2 stop Bonchi\\ Portal",
     "test": "echo \"Error: no test specified\" && exit 1",

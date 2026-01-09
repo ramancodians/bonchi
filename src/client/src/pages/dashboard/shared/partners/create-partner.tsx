@@ -31,12 +31,16 @@ const CreatePartner: React.FC = () => {
                 onClick={() => setSelectedPartnerType(partnerType.value)}
                 className={`card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-200 border-2 ${
                   isSelected
-                    ? "border-primary bg-primary/5"
+                    ? "border-primary bg-primary/50"
                     : "border-base-300 hover:border-primary/50"
+                }`}
                 }`}
               >
                 <div className="card-body items-center text-center">
                   <Icon
+                    className={`text-6xl mb-4 ${
+                      isSelected ? "text-primary" : "text-base-content/70"
+                    }`}
                     className={`text-6xl mb-4 ${
                       isSelected ? "text-primary" : "text-base-content/70"
                     }`}
