@@ -15,10 +15,11 @@ CustomersRouter.get("/list", async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Get total count of users
-    const total = await prisma.user.count();
+    const total = await prisma.user.count({ where: { role: 'CUSTOMER' } });
 
     // Get paginated users (exclude password)
     const users = await prisma.user.findMany({
+      where: { role: 'CUSTOMER' },
       skip,
       take: limit,
       orderBy: {
@@ -86,6 +87,7 @@ CustomersRouter.get("/search", async (req, res) => {
 
     // Build search conditions
     const searchConditions = {
+      role: 'CUSTOMER',
       OR: [
         { first_name: { contains: query, mode: "insensitive" as const } },
         { last_name: { contains: query, mode: "insensitive" as const } },

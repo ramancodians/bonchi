@@ -151,14 +151,13 @@ const OperationSupportForm: React.FC = () => {
                   </span>
                 </label>
                 <select
-                  className={`select select-bordered w-full ${
-                    errors.gender ? "select-error" : ""
-                  }`}
+                  className={`select select-bordered w-full ${errors.gender ? "select-error" : ""
+                    }`}
                   {...register("gender", { required: "Gender is required" })}
                 >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="OTHER">Other</option>
                 </select>
                 {errors.gender && (
                   <label className="label">
@@ -254,9 +253,8 @@ const OperationSupportForm: React.FC = () => {
                   <span className="label-text">Insurance?</span>
                 </label>
                 <select
-                  className={`select select-bordered w-full ${
-                    errors.has_insurance ? "select-error" : ""
-                  }`}
+                  className={`select select-bordered w-full ${errors.has_insurance ? "select-error" : ""
+                    }`}
                   {...register("has_insurance", {
                     setValueAs: (value) => value === "true",
                   })}
@@ -280,9 +278,8 @@ const OperationSupportForm: React.FC = () => {
                   </span>
                 </label>
                 <select
-                  className={`select select-bordered w-full ${
-                    errors.required_support_percetage ? "select-error" : ""
-                  }`}
+                  className={`select select-bordered w-full ${errors.required_support_percetage ? "select-error" : ""
+                    }`}
                   {...register("required_support_percetage", {
                     required: "Required Support is required",
                     setValueAs: (value) => parseInt(value),
@@ -321,9 +318,8 @@ const OperationSupportForm: React.FC = () => {
                 <span className="label-text">Description / Notes</span>
               </label>
               <textarea
-                className={`textarea textarea-bordered h-32 ${
-                  errors.additional_details ? "textarea-error" : ""
-                }`}
+                className={`textarea textarea-bordered h-32 ${errors.additional_details ? "textarea-error" : ""
+                  }`}
                 placeholder="Please provide any additional information that may help us process your request..."
                 {...register("additional_details")}
               />

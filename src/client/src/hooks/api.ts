@@ -36,6 +36,9 @@ export const searchCustomersAPI = async (query: string, page = 1, limit = 10) =>
     })
   ).data?.data;
 
+export const getAdminStatsAPI = async () =>
+  (await axios.get(`${API_ENDPOINT}/admin/stats`)).data?.data;
+
 // Partner APIS
 export const createPartnerAPI = async (payload) => {
   let endpoint = `${API_ENDPOINT}/admin/partners/create`;
@@ -116,4 +119,7 @@ export const getPaymentConfigAPI = async () =>
 
 export const activateHealthCardAPI = async (payload) =>
   (await axios.post(`${API_ENDPOINT}/customer/health-card/activate`, payload)).data;
+
+export const getBannersAPI = async () =>
+  (await axios.get(`${API_ENDPOINT}/banners/public`)).data?.data;
 

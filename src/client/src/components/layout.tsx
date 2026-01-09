@@ -6,6 +6,7 @@ import {
   AiOutlineFileText,
   AiOutlineMore,
 } from "react-icons/ai";
+import { FaCreditCard } from "react-icons/fa";
 import { useUser } from "../hooks/query";
 
 const Layout = ({ children }) => {
@@ -24,9 +25,9 @@ const Layout = ({ children }) => {
       icon: <AiOutlineCalendar size={24} />,
     },
     {
-      name: "Support",
-      path: "/dashboard/support",
-      icon: <AiOutlineFileText size={24} />,
+      name: "Health Card",
+      path: "/dashboard/health-card",
+      icon: <FaCreditCard size={24} />,
     },
     {
       name: "More",
@@ -63,11 +64,10 @@ const Layout = ({ children }) => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-                location.pathname === item.path
-                  ? "text-blue-600"
-                  : "text-gray-500"
-              }`}
+              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${location.pathname === item.path
+                ? "text-blue-600"
+                : "text-gray-500"
+                }`}
             >
               {item.icon}
               <span className="text-xs mt-1 font-medium">{item.name}</span>

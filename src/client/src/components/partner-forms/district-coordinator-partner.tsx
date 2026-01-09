@@ -1,8 +1,8 @@
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import TextInput from "../FormElements/TextInput";
 import { useCreatePartnerMutation } from "../../hooks/mutations";
+import { State, City } from "country-state-city";
 
 interface DistrictCoordinatorFormData {
     first_name: string;
@@ -23,10 +23,16 @@ const DistrictCoordinatorForm: React.FC = () => {
         formState: { errors, isSubmitting },
         watch,
         reset,
+        setValue
     } = useForm<DistrictCoordinatorFormData>();
 
     const { mutate: createPartner, isPending } = useCreatePartnerMutation();
     const password = watch("password");
+
+    // State for address selection
+    const [selectedStateIso, setSelectedStateIso] = useState<string>("");
+    const states = State.getStatesOfCountry("IN");
+    const districts = selectedStateIso ? City.getCitiesOfState("IN", selectedStateIso) : [];
 
     const onSubmit = async (data: DistrictCoordinatorFormData) => {
         // Prepare payload correctly
@@ -39,7 +45,17 @@ const DistrictCoordinatorForm: React.FC = () => {
         createPartner(payload, {
             onSuccess: () => {
                 alert("District Manager created successfully!");
-                reset();
+                reset({
+                    first_name: "",
+                    last_name: "",
+                    mobile: "",
+                    email: "",
+                    password: "",
+                    confirm_password: "",
+                    district: "",
+                    employee_id: ""
+                });
+                setSelectedStateIso("");
             },
             onError: (error: any) => {
                 console.error("Error creating DM:", error);
@@ -97,29 +113,51 @@ const DistrictCoordinatorForm: React.FC = () => {
             </div>
 
             <div className="pb-6">
+                <h2 className="text-xl font-semibold mb-4 text-primary">Jurisdiction Details</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
+                    <div className="form-control w-full">
                         <label className="label">
-                            <span className="label-text">State (Jurisdiction)</span>
+                            <span className="label-text">Select State</span>
                         </label>
                         <select
                             className="select select-bordered w-full"
+                            value={selectedStateIso}
                             onChange={(e) => {
-                                // No state saving logic in form hook yet, need to manage local state for districts or use controller.
-                                // For simplicity mixing controlled/uncontrolled.
-                                const s = State.getStatesOfCountry("IN").find(s => s.isoCode === e.target.value);
-                                // setValue('state', s?.name); // If we tracked state
-                                // setDistricts(City.getCitiesOfState("IN", e.target.value));
-                                // But this is a stateless component? No, has useForm but local state needed.
+                                setSelectedStateIso(e.target.value);
+                                setValue("district", ""); // Reset district when state changes
                             }}
-                        // Need to add state handling
                         >
-                            <option value="">Select State</option>
-                            {/* Need imports and local state */}
+                            <option value="">-- Select State --</option>
+                            {states.map((state) => (
+                                <option key={state.isoCode} value={state.isoCode}>
+                                    {state.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
-                    {/* REFACTORING WHOLE COMPONENT BELOW TO ADD STATE LOGIC */}
+                    <div className="form-control w-full">
+                        <label className="label">
+                            <span className="label-text">Select District</span>
+                        </label>
+                        <select
+                            className={`select select-bordered w-full ${errors.district ? "select-error" : ""}`}
+                            {...register("district", { required: "District assignment is required" })}
+                            disabled={!selectedStateIso}
+                        >
+                            <option value="">-- Select District --</option>
+                            {districts.map((city) => (
+                                <option key={city.name} value={city.name}>
+                                    {city.name}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.district && (
+                            <label className="label">
+                                <span className="label-text-alt text-error">{errors.district.message}</span>
+                            </label>
+                        )}
+                    </div>
                 </div>
             </div>
 

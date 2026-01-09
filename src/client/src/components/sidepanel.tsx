@@ -38,6 +38,11 @@ const SUPER_ADMIN_LINKS: NavItem[] = [
     path: "/admin/support-requests",
     icon: <AiOutlineFileText size={24} />,
   },
+  {
+    name: "Banners",
+    path: "/admin/banners",
+    icon: <FaBoxOpen size={24} />, // Reusing icon or import new one (Image icon)
+  },
 ];
 
 
@@ -136,11 +141,6 @@ const CUSTOMER_LINKS: NavItem[] = [
     name: "Health Card",
     path: "/dashboard/health-card",
     icon: <FaCreditCard size={24} />,
-  },
-  {
-    name: "Support",
-    path: "/dashboard/support",
-    icon: <AiOutlineFileText size={24} />,
   },
   {
     name: "More",

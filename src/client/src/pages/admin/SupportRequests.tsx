@@ -1,13 +1,31 @@
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getSupportListAPI } from '../../hooks/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+import { getSupportListAPI, updateSupportAPI } from '../../hooks/api';
 
 const AdminSupportRequests = () => {
+    const queryClient = useQueryClient();
     const { data: requests, isLoading } = useQuery({
         queryKey: ['admin-support-requests'],
         queryFn: getSupportListAPI
     });
+
+    const updateMutation = useMutation({
+        mutationFn: ({ id, status }: { id: string, status: string }) =>
+            updateSupportAPI(id, { status }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-support-requests'] });
+            toast.success("Request status updated");
+        },
+        onError: () => toast.error("Failed to update status")
+    });
+
+    const handleUpdateStatus = (id: string, status: string) => {
+        if (window.confirm(`Are you sure you want to mark this as ${status}?`)) {
+            updateMutation.mutate({ id, status });
+        }
+    };
 
     if (isLoading) return <div className="p-8 text-center"><span className="loading loading-spinner loading-lg"></span></div>;
 
@@ -43,14 +61,38 @@ const AdminSupportRequests = () => {
                                     <div className="text-xs text-gray-500">{req.hospital_name || "Hospital Needed"}</div>
                                 </td>
                                 <td>
-                                    {/* Assuming status field exists, else default */}
-                                    <span className="badge badge-warning">Pending</span>
+                                    <div className={`badge ${req.status === 'APPROVED' ? 'badge-success text-white' :
+                                        req.status === 'REJECTED' ? 'badge-error text-white' :
+                                            'badge-warning'
+                                        }`}>
+                                        {req.status || 'PENDING'}
+                                    </div>
                                 </td>
                                 <td className="text-sm">
                                     {new Date(req.created_at || Date.now()).toLocaleDateString()}
                                 </td>
                                 <td>
-                                    <button className="btn btn-sm btn-ghost text-blue-600">View Details</button>
+                                    <div className="flex gap-2">
+                                        {req.status === 'PENDING' && (
+                                            <>
+                                                <button
+                                                    onClick={() => handleUpdateStatus(req.id, 'APPROVED')}
+                                                    className="btn btn-xs btn-success text-white"
+                                                    disabled={updateMutation.isPending}
+                                                >
+                                                    Approve
+                                                </button>
+                                                <button
+                                                    onClick={() => handleUpdateStatus(req.id, 'REJECTED')}
+                                                    className="btn btn-xs btn-error text-white"
+                                                    disabled={updateMutation.isPending}
+                                                >
+                                                    Reject
+                                                </button>
+                                            </>
+                                        )}
+                                        <button className="btn btn-xs btn-ghost text-blue-600">View</button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

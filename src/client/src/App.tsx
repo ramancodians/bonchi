@@ -14,10 +14,9 @@ import { useUser } from "./hooks/query";
 
 import { useEffect } from "react";
 import PartnerRegistration from "./pages/partner-registration";
-import SuperAdminDashboard from "./pages/dashboard/superAdmin";
-import FourNotFour from "./pages/fourNotfour";
-import SharedPages from "./pages/dashboard/shared";
+import SharedPages from "./pages/dashboard/shared"; // Added missing import
 import Layout from "./components/layout";
+import FourNotFour from "./pages/fourNotfour";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/adminDashboard";
@@ -25,6 +24,8 @@ import AdminSupportRequests from "./pages/admin/SupportRequests";
 import AgentList from "./pages/admin/AgentList";
 import CustomerList from "./pages/admin/CustomerList";
 import PartnerList from "./pages/admin/PartnerList";
+import CreatePartner from "./pages/admin/CreatePartner";
+import AdminBannerManager from "./pages/admin/BannerManager";
 
 // Agent Pages
 import AgentDashboard from "./pages/agent/Dashboard";
@@ -36,13 +37,11 @@ import AgentWallet from "./pages/agent/Wallet";
 import DMDashboard from "./pages/district-manager/Dashboard";
 import DMAgents from "./pages/district-manager/Agents";
 import DMCreateAgent from "./pages/district-manager/CreateAgent";
+
+// Other Role Pages
 import MedicalStoreDashboard from "./pages/medical-store/Dashboard";
 import HealthAssistantDashboard from "./pages/health-assistant/Dashboard";
 import HospitalDashboard from "./pages/hospital/Dashboard";
-
-import MedicalStoreOrders from "./pages/medical-store/Orders";
-import HealthAssistantSchedule from "./pages/health-assistant/Schedule";
-import HospitalAppointments from "./pages/hospital/Appointments";
 
 function App() {
   const { data: userData } = useUser();
@@ -59,7 +58,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/dashboard/*" element={<Dashboard />} />
         <Route path="/shared/*" element={<SharedPages />} />
-        <Route path="/admin/*" element={<SuperAdminDashboard />} />
+        {/* <Route path="/admin/*" element={<SuperAdminDashboard />} />  Removed conflicting route */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register-partner" element={<PartnerRegistration />} />
@@ -73,6 +72,8 @@ function App() {
               <Route path="all-customers" element={<CustomerList />} />
               <Route path="support-requests" element={<AdminSupportRequests />} />
               <Route path="all-partners" element={<PartnerList />} />
+              <Route path="partners/create" element={<CreatePartner />} />
+              <Route path="banners" element={<AdminBannerManager />} />
             </Routes>
           </Layout>
         } />
@@ -135,7 +136,7 @@ function App() {
         } />
 
         <Route path="/404" element={<FourNotFour />} />
-      </Routes>
+      </Routes >
       <ToastContainer
         position="bottom-left"
         autoClose={5000}

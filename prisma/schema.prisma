@@ -562,3 +562,14 @@ model AgentSettings {
 
   @@map("agent_settings")
 }
+
+model BannerImage {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  
+  url        String   // Base64 string for simplicity
+  isActive   Boolean  @default(true)
+  order      Int      @default(0)
+
+  @@map("banner_images")
+}

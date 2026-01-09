@@ -8,6 +8,7 @@ import DMRouter from "./routes/district-manager";
 import { adminMiddleware } from "./middleware/adminMiddleware";
 
 import HealthCardRouter from "./routes/customer/health-card";
+import BannerRouter from "./routes/banners";
 
 const APIRouter = Router();
 
@@ -17,5 +18,6 @@ APIRouter.use("/support", authMiddleware, SupportRouter);
 APIRouter.use("/agent", authMiddleware, AgentRouter);
 APIRouter.use("/district-manager", authMiddleware, DMRouter);
 APIRouter.use("/customer/health-card", authMiddleware, HealthCardRouter);
+APIRouter.use("/banners", BannerRouter); // Public for GET, Protected inside for POST/DELETE
 
 export default APIRouter;

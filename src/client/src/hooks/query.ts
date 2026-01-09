@@ -13,7 +13,14 @@ import {
   getDMDashboardAPI,
   getDMAgentsAPI,
   getHealthCardAPI,
+  getBannersAPI,
 } from "./api";
+
+export const useBanners = () =>
+  useQuery({
+    queryKey: ["banners"],
+    queryFn: getBannersAPI,
+  });
 
 // Customer Hooks
 export const useHealthCard = () => {

@@ -7,6 +7,7 @@ import MorePage from "./customer/more";
 import SupportList from "./customer/supportList";
 import HealthCard from "../customer/HealthCard";
 import Profile from "./customer/profile";
+import FamilyPlan from "./customer/FamilyPlan";
 
 const Dashboard = () => {
   return (
@@ -20,7 +21,7 @@ const Dashboard = () => {
         <Route path="/more" element={<MorePage />} />
         <Route path="/profile" element={<Profile />} />
         {/* Placeholders for others */}
-        <Route path="/family-plan" element={<div className="p-6">Family Plan Coming Soon</div>} />
+        <Route path="/family-plan" element={<FamilyPlan />} />
         <Route path="/notifications" element={<div className="p-6">No Notifications</div>} />
         <Route path="/" element={<CustomerDashboard />} />
       </Routes>

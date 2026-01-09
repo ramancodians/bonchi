@@ -1,3 +1,4 @@
+import React from "react";
 import { Helmet } from "react-helmet";
 import {
   AiOutlineCalendar,
@@ -6,13 +7,25 @@ import {
 } from "react-icons/ai";
 import { FaWhatsapp } from "react-icons/fa";
 import Logo from "./../../../assets/logo.png";
-import { useUser, useHealthCard } from "../../../hooks/query";
+import { useUser, useHealthCard, useBanners } from "../../../hooks/query";
 
 const CustomerDashboard = () => {
   const { data: userData, isLoading } = useUser();
 
+
   /* Health Card Logic */
   const { data: healthCard, isLoading: isCardLoading } = useHealthCard();
+  const { data: banners } = useBanners();
+  const [currentBannerIndex, setCurrentBannerIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    if (banners && banners.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
+      }, 5000); // 5 seconds
+      return () => clearInterval(interval);
+    }
+  }, [banners]);
 
   const cardNumber = healthCard?.card_number || "PENDING";
   const expiryDate = healthCard?.expiry_date ? new Date(healthCard.expiry_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : "--";
@@ -51,6 +64,7 @@ const CustomerDashboard = () => {
 
   console.log("User Data in Dashboard:", userData);
 
+
   return (
     <>
       <Helmet>
@@ -68,36 +82,25 @@ const CustomerDashboard = () => {
             </h1>
           </div>
 
-          {/* Health Card */}
-          <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-lg">
-            <div className="flex items-center mb-4">
-              <img src={Logo} alt="Bonchi Cares" className="w-8 h-8 mr-2" />
-              <span className="text-white font-semibold">Bonchi Cares</span>
-            </div>
-
-            <div className="mb-4">
-              <h2 className="text-white text-2xl sm:text-3xl font-bold tracking-wider mb-2">
-                {isCardLoading ? "Loading..." : cardNumber}
-              </h2>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-200 text-xs">Expires</p>
-                  <p className="text-white text-sm font-medium">{expiryDate}</p>
+          {/* Banner Slider */}
+          <div className="relative rounded-2xl overflow-hidden shadow-lg mb-4 sm:mb-6 min-h-[220px]">
+            {/* Slider Background */}
+            <div className="absolute inset-0 z-0 bg-gray-200 transition-all duration-1000">
+              {banners && banners.length > 0 ? (
+                banners.map((banner: any, index: number) => (
+                  <div
+                    key={banner.id}
+                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${index === currentBannerIndex ? 'opacity-100' : 'opacity-0'}`}
+                    style={{ backgroundImage: `url(${banner.url})` }}
+                  />
+                ))
+              ) : (
+                // Placeholder if no banners
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400">
+                  <span className="text-sm">Bonchi Cares</span>
                 </div>
-                {/* Only show badge if active or specifically requested */}
-                <div className={`badge text-white font-semibold px-3 py-2 ${status === 'active' ? 'badge-success' : 'badge-warning'}`}>
-                  {status.toUpperCase()}
-                </div>
-              </div>
+              )}
             </div>
-
-            <button
-              onClick={handleViewCardDetails}
-              className="btn w-full text-white font-semibold border-none"
-              style={{ backgroundColor: "#E87835" }}
-            >
-              View Card Details
-            </button>
           </div>
 
           {/* Quick Actions */}
