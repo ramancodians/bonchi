@@ -4,7 +4,9 @@ import { PARTNER_TYPES } from "../../../../config/consts";
 import HospitalPartnerForm from "../../../../components/partner-forms/hospital-partner";
 
 const CreatePartner: React.FC = () => {
-  const [selectedPartnerType, setSelectedPartnerType] = useState<string | null>(null);
+  const [selectedPartnerType, setSelectedPartnerType] = useState<string | null>(
+    null
+  );
 
   const renderPartnerTypeSelector = () => {
     return (
@@ -12,12 +14,12 @@ const CreatePartner: React.FC = () => {
         <h2 className="text-2xl font-semibold text-center mb-8">
           Select Partner Type
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {PARTNER_TYPES.map((partnerType) => {
             const Icon = partnerType.icon;
             const isSelected = selectedPartnerType === partnerType.value;
-            
+
             return (
               <button
                 key={partnerType.value}
@@ -30,14 +32,12 @@ const CreatePartner: React.FC = () => {
                 }`}
               >
                 <div className="card-body items-center text-center">
-                  <Icon 
+                  <Icon
                     className={`text-6xl mb-4 ${
                       isSelected ? "text-primary" : "text-base-content/70"
-                    }`} 
+                    }`}
                   />
-                  <h3 className="card-title text-xl">
-                    {partnerType.label}
-                  </h3>
+                  <h3 className="card-title text-xl">{partnerType.label}</h3>
                   {isSelected && (
                     <div className="badge badge-primary mt-2">Selected</div>
                   )}
@@ -110,9 +110,7 @@ const CreatePartner: React.FC = () => {
               {!selectedPartnerType ? (
                 renderPartnerTypeSelector()
               ) : (
-                <div className="space-y-6">
-                  {renderPartnerForm()}
-                </div>
+                <div className="space-y-6">{renderPartnerForm()}</div>
               )}
             </div>
           </div>

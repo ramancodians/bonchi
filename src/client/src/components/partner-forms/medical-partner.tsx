@@ -56,7 +56,9 @@ interface MedicalStorePartnerFormProps {
   isCompact?: boolean;
 }
 
-const MedicalStorePartnerForm: React.FC<MedicalStorePartnerFormProps> = ({ isCompact = true }) => {
+const MedicalStorePartnerForm: React.FC<MedicalStorePartnerFormProps> = ({
+  isCompact = true,
+}) => {
   const {
     register,
     handleSubmit,
@@ -229,7 +231,8 @@ const MedicalStorePartnerForm: React.FC<MedicalStorePartnerFormProps> = ({ isCom
                 error={errors.gst_number?.message}
                 {...register("gst_number", {
                   pattern: {
-                    value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
+                    value:
+                      /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
                     message: "Please enter a valid GST number",
                   },
                 })}
@@ -514,8 +517,8 @@ const MedicalStorePartnerForm: React.FC<MedicalStorePartnerFormProps> = ({ isCom
                 ></path>
               </svg>
               <span>
-                Document upload functionality will be implemented later. For now,
-                you can provide URLs if documents are hosted elsewhere.
+                Document upload functionality will be implemented later. For
+                now, you can provide URLs if documents are hosted elsewhere.
               </span>
             </div>
           </div>
