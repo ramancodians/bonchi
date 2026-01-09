@@ -27,7 +27,7 @@ const CreatePartner: React.FC = () => {
                 onClick={() => setSelectedPartnerType(partnerType.value)}
                 className={`card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-200 border-2 ${
                   isSelected
-                    ? "border-primary bg-primary/5"
+                    ? "border-primary bg-primary/50"
                     : "border-base-300 hover:border-primary/50"
                 }`}
               >
