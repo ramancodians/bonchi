@@ -7,6 +7,7 @@ import TextInput from "../components/FormElements/TextInput";
 import { useLoginMutation } from "../hooks/mutations";
 import { setAuthToken } from "../utils/cookies";
 import { toast } from "react-toastify";
+import { getDashboardPath } from "../utils/roleUtils";
 
 interface LoginFormData {
   emailOrPhone: string;
@@ -32,8 +33,9 @@ export default function Login() {
       // Show success message
       toast.success(`Welcome back, ${user.first_name}!`);
 
-      // Redirect to dashboard
-      navigate("/dashboard");
+      // Redirect based on role
+      const dashboardPath = getDashboardPath(user.role);
+      navigate(dashboardPath);
     } catch (error: any) {
       console.error("Login error:", error);
       const errorMessage =

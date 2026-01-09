@@ -12,7 +12,9 @@ import Logo from "./../assets/logo.png";
 import { useUser } from "../hooks/query";
 import { getFullName } from "../utils/formattingUtils";
 import { useMemo } from "react";
-import { FaUsers } from "react-icons/fa";
+import { FaUsers, FaWallet, FaUserPlus, FaCreditCard, FaBoxOpen, FaHospital, FaUserMd } from "react-icons/fa";
+import { MdDashboard } from "react-icons/md";
+
 
 interface NavItem {
   name: string;
@@ -33,6 +35,87 @@ const SUPER_ADMIN_LINKS: NavItem[] = [
   },
 ];
 
+
+const AGENT_LINKS: NavItem[] = [
+  {
+    name: "Dashboard",
+    path: "/agent/dashboard",
+    icon: <MdDashboard size={24} />,
+  },
+  {
+    name: "Create User",
+    path: "/agent/create-user",
+    icon: <FaUserPlus size={24} />,
+  },
+  {
+    name: "My Users",
+    path: "/agent/users",
+    icon: <FaUsers size={24} />,
+  },
+  {
+    name: "Wallet",
+    path: "/agent/wallet",
+    icon: <FaWallet size={24} />,
+  },
+];
+
+const DM_LINKS: NavItem[] = [
+  {
+    name: "Dashboard",
+    path: "/district-manager/dashboard",
+    icon: <MdDashboard size={24} />,
+  },
+  {
+    name: "Agents",
+    path: "/district-manager/agents",
+    icon: <FaUsers size={24} />,
+  },
+  {
+    name: "Create Agent",
+    path: "/district-manager/create-agent",
+    icon: <FaUserPlus size={24} />,
+  },
+];
+
+const MEDICAL_STORE_LINKS: NavItem[] = [
+  {
+    name: "Dashboard",
+    path: "/medical-store/dashboard",
+    icon: <MdDashboard size={24} />,
+  },
+  {
+    name: "Orders",
+    path: "/medical-store/orders", // Placeholder
+    icon: <FaBoxOpen size={24} />,
+  }
+];
+
+const HEALTH_ASSISTANT_LINKS: NavItem[] = [
+  {
+    name: "Dashboard",
+    path: "/health-assistant/dashboard",
+    icon: <MdDashboard size={24} />,
+  },
+  {
+    name: "Schedule",
+    path: "/health-assistant/schedule",
+    icon: <AiOutlineCalendar size={24} />,
+  }
+];
+
+const HOSPITAL_LINKS: NavItem[] = [
+  {
+    name: "Dashboard",
+    path: "/hospital/dashboard",
+    icon: <MdDashboard size={24} />,
+  },
+  {
+    name: "Appointments",
+    path: "/hospital/appointments",
+    icon: <AiOutlineCalendar size={24} />,
+  }
+];
+
 const CUSTOMER_LINKS: NavItem[] = [
   {
     name: "Home",
@@ -43,6 +126,11 @@ const CUSTOMER_LINKS: NavItem[] = [
     name: "Appointments",
     path: "/dashboard/appointments",
     icon: <AiOutlineCalendar size={24} />,
+  },
+  {
+    name: "Health Card",
+    path: "/dashboard/health-card",
+    icon: <FaCreditCard size={24} />,
   },
   {
     name: "Support",
@@ -63,6 +151,21 @@ const SidePanel = () => {
   const navItems = useMemo(() => {
     if (userData && userData?.role === "SUPER_ADMIN") {
       return SUPER_ADMIN_LINKS;
+    }
+    if (userData && userData?.role === "BONCHI_MITRA") {
+      return AGENT_LINKS;
+    }
+    if (userData && userData?.role === "DISTRICT_CORDINATOR") { // Check schema for exact enum
+      return DM_LINKS;
+    }
+    if (userData && userData?.role === "MEDICAL_STORE") {
+      return MEDICAL_STORE_LINKS;
+    }
+    if (userData && userData?.role === "HEALTH_ASSISTANT") {
+      return HEALTH_ASSISTANT_LINKS;
+    }
+    if (userData && userData?.role === "HOSPITAL_PARTNER") {
+      return HOSPITAL_LINKS;
     }
     return CUSTOMER_LINKS;
   }, [userData]);
@@ -91,11 +194,10 @@ const SidePanel = () => {
             <li key={item.path}>
               <Link
                 to={item.path}
-                className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-                  location.pathname === item.path
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`flex items-center px-4 py-3 rounded-lg transition-colors ${location.pathname === item.path
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-700 hover:bg-gray-100"
+                  }`}
               >
                 <span className="mr-3">{item.icon}</span>
                 <span className="font-medium">{item.name}</span>

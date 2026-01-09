@@ -10,8 +10,8 @@ export const adminMiddleware = async (req: any, res: any, next: any) => {
         error: "Token not found",
       });
     } else {
-      const decodedData = jwt.verify(token, process.env.JWT_SECRET || "");
-      if (SUPER_ADMINS_IDS.includes(decodedData?.userId)) {
+      const decodedData = jwt.verify(token, process.env.JWT_SECRET || "") as any;
+      if (SUPER_ADMINS_IDS.includes(decodedData?.userId) || decodedData?.role === "SUPER_ADMIN") {
         next();
       } else {
         res.status(403).json({

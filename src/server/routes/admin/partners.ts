@@ -61,8 +61,13 @@ PartnersRouter.get("/list", async (req, res) => {
             hospital_name: true,
             registration_number: true,
             mobile_number: true,
-            district: true,
-            state: true,
+            addresses: {
+              select: {
+                district: true,
+                state: true,
+              },
+              take: 1, // Take the first address
+            },
           },
         },
         medical_store: {
@@ -71,8 +76,13 @@ PartnersRouter.get("/list", async (req, res) => {
             store_name: true,
             drug_license_number: true,
             mobile_number: true,
-            district: true,
-            state: true,
+            addresses: {
+              select: {
+                district: true,
+                state: true,
+              },
+              take: 1,
+            },
           },
         },
       },
@@ -125,9 +135,15 @@ PartnersRouter.post("/create", async (req, res) => {
     }
 
     // Validate role
-    if (role !== "HOSPITAL_PARTNER" && role !== "MEDICAL_STORE") {
+    if (
+      role !== "HOSPITAL_PARTNER" &&
+      role !== "MEDICAL_STORE" &&
+      role !== "HEALTH_ASSISTANT" &&
+      role !== UserRoles.DISTRICT_CORDINATOR
+    ) {
       return sendErrorResponse(res, {
-        message: "Invalid role. Must be HOSPITAL_PARTNER or MEDICAL_STORE",
+        message:
+          "Invalid role. Must be HOSPITAL_PARTNER, MEDICAL_STORE, or HEALTH_ASSISTANT, or DISTRICT_CORDINATOR",
         status: 400,
       });
     }
@@ -165,8 +181,17 @@ PartnersRouter.post("/create", async (req, res) => {
         },
       });
 
+      if (role === UserRoles.DISTRICT_CORDINATOR) {
+        await prisma.district_coordinators.create({
+          data: {
+            user_id: newUser.id,
+            created_by_user_id: createdByUserId,
+          },
+        });
+      }
+
       if (role === "HOSPITAL_PARTNER") {
-        // Validate hospital-specific required fields
+        // ... (Existing Hospital logic)
         const {
           hospital_name,
           registration_number,
@@ -188,18 +213,15 @@ PartnersRouter.post("/create", async (req, res) => {
           throw new Error("Missing required hospital fields");
         }
 
-        // Check if registration number already exists
+        // ... Check Exists ...
         const existingHospital = await tx.hospitalPartner.findUnique({
           where: { registration_number },
         });
-
-        if (existingHospital) {
+        if (existingHospital)
           throw new Error(
             "Hospital with this registration number already exists"
           );
-        }
 
-        // Create Hospital Partner
         const hospitalPartner = await tx.hospitalPartner.create({
           data: {
             user_id: newUser.id,
@@ -229,10 +251,9 @@ PartnersRouter.post("/create", async (req, res) => {
             free_services: partnerData.free_services || null,
           },
         });
-
         return { user: newUser, partner: hospitalPartner };
-      } else {
-        // MEDICAL_STORE
+      } else if (role === "MEDICAL_STORE") {
+        // ... (Existing Medical Store logic)
         const {
           store_name,
           owner_name,
@@ -251,18 +272,14 @@ PartnersRouter.post("/create", async (req, res) => {
           throw new Error("Missing required medical store fields");
         }
 
-        // Check if drug license number already exists
         const existingStore = await tx.medicalStore.findUnique({
           where: { drug_license_number },
         });
-
-        if (existingStore) {
+        if (existingStore)
           throw new Error(
             "Medical store with this drug license number already exists"
           );
-        }
 
-        // Create Medical Store
         const medicalStore = await tx.medicalStore.create({
           data: {
             user_id: newUser.id,
@@ -299,15 +316,44 @@ PartnersRouter.post("/create", async (req, res) => {
             terms_accepted: partnerData.terms_accepted || false,
           },
         });
-
         return { user: newUser, partner: medicalStore };
+      } else if (role === "HEALTH_ASSISTANT") {
+        // New Health Assistant Logic
+        const {
+          profession,
+          qualification,
+          specialization,
+          experience_years,
+          address,
+          aadhaar_number,
+        } = partnerData;
+
+        const healthAssistant = await tx.healthAssistant.create({
+          data: {
+            user_id: newUser.id,
+            profession: profession || "Health Assistant",
+            qualification: qualification || null,
+            specialization: specialization || null,
+            experience_years: experience_years
+              ? parseInt(experience_years)
+              : null,
+            address: address || null,
+            aadhaar_number: aadhaar_number || null,
+            is_verified: true, // Auto-verify for now since created by Admin/Agent
+          },
+        });
+        return { user: newUser, partner: healthAssistant };
       }
     });
 
     return sendSuccessResponse(res, {
       data: {
         message: `${
-          role === "HOSPITAL_PARTNER" ? "Hospital Partner" : "Medical Store"
+          role === "HOSPITAL_PARTNER"
+            ? "Hospital Partner"
+            : role === "MEDICAL_STORE"
+            ? "Medical Store"
+            : "Health Assistant"
         } created successfully`,
         userId: result.user.id,
         partnerId: result.partner.id,

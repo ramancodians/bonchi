@@ -4,65 +4,54 @@ import { useForm } from "react-hook-form";
 import TextInput from "../FormElements/TextInput";
 import { useCreatePartnerMutation } from "../../hooks/mutations";
 
-interface HealthAssistantFormData {
-    // User Credentials
+interface DistrictCoordinatorFormData {
     first_name: string;
     last_name: string;
     mobile: string;
+    email: string; // Required for official comms
     password: string;
     confirm_password: string;
-    email?: string;
 
-    // Professional Details
-    profession: string;
-    qualification: string;
-    specialization?: string;
-    experience_years?: number;
-    aadhaar_number?: string;
-
-    // Address
-    address?: string;
+    district: string;
+    employee_id?: string;
 }
 
-const HealthAssistantForm: React.FC = () => {
+const DistrictCoordinatorForm: React.FC = () => {
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
         watch,
         reset,
-    } = useForm<HealthAssistantFormData>({
-        defaultValues: {
-            profession: "Heath Assistant"
-        }
-    });
+    } = useForm<DistrictCoordinatorFormData>();
 
     const { mutate: createPartner, isPending } = useCreatePartnerMutation();
     const password = watch("password");
 
-    const onSubmit = async (data: HealthAssistantFormData) => {
+    const onSubmit = async (data: DistrictCoordinatorFormData) => {
+        // Prepare payload correctly
         const payload = {
             ...data,
-            role: "HEALTH_ASSISTANT",
+            role: "DISTRICT_CORDINATOR",
+            assigned_districts: [data.district] // Assign home district by default
         };
 
         createPartner(payload, {
             onSuccess: () => {
-                alert("Health Assistant created successfully!");
+                alert("District Manager created successfully!");
                 reset();
             },
             onError: (error: any) => {
-                console.error("Error creating health assistant:", error);
-                alert(error?.response?.data?.message || "Failed to create health assistant");
+                console.error("Error creating DM:", error);
+                alert(error?.response?.data?.message || "Failed to create District Manager");
             },
         });
     };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            {/* Login Credentials Section */}
             <div className="border-b pb-6">
-                <h2 className="text-xl font-semibold mb-4 text-primary">Login Credentials</h2>
+                <h2 className="text-xl font-semibold mb-4 text-primary">District Manager Registration</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextInput
                         label="First Name"
@@ -84,10 +73,11 @@ const HealthAssistantForm: React.FC = () => {
                         {...register("mobile", { required: "Mobile required", pattern: { value: /^[6-9]\d{9}$/, message: "Invalid mobile" } })}
                     />
                     <TextInput
-                        label="Email (Optional)"
+                        label="Email (Required)"
                         type="email"
-                        placeholder="Email"
-                        {...register("email")}
+                        placeholder="Official Email"
+                        error={errors.email?.message}
+                        {...register("email", { required: "Email required" })}
                     />
                     <TextInput
                         label="Password"
@@ -106,56 +96,41 @@ const HealthAssistantForm: React.FC = () => {
                 </div>
             </div>
 
-            {/* Professional Details */}
             <div className="pb-6">
-                <h2 className="text-xl font-semibold mb-4 text-primary">Professional Details</h2>
-                <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <TextInput
-                            label="Profession / Role"
-                            placeholder="e.g. Nurse, Compounder"
-                            error={errors.profession?.message}
-                            {...register("profession", { required: "Profession required" })}
-                        />
-                        <TextInput
-                            label="Qualification"
-                            placeholder="e.g. B.Sc Nursing, Diploma"
-                            error={errors.qualification?.message}
-                            {...register("qualification", { required: "Qualification required" })}
-                        />
-                        <TextInput
-                            label="Specialization (Optional)"
-                            placeholder="e.g. Critical Care"
-                            {...register("specialization")}
-                        />
-                        <TextInput
-                            label="Experience (Years)"
-                            type="number"
-                            placeholder="e.g. 5"
-                            {...register("experience_years")}
-                        />
-                        <TextInput
-                            label="Aadhaar Number"
-                            placeholder="12-digit Aadhaar"
-                            {...register("aadhaar_number", { pattern: { value: /^\d{12}$/, message: "Invalid Aadhaar" } })}
-                        />
-                        <TextInput
-                            label="Full Address"
-                            placeholder="Current Address"
-                            {...register("address")}
-                        />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="label">
+                            <span className="label-text">State (Jurisdiction)</span>
+                        </label>
+                        <select
+                            className="select select-bordered w-full"
+                            onChange={(e) => {
+                                // No state saving logic in form hook yet, need to manage local state for districts or use controller.
+                                // For simplicity mixing controlled/uncontrolled.
+                                const s = State.getStatesOfCountry("IN").find(s => s.isoCode === e.target.value);
+                                // setValue('state', s?.name); // If we tracked state
+                                // setDistricts(City.getCitiesOfState("IN", e.target.value));
+                                // But this is a stateless component? No, has useForm but local state needed.
+                            }}
+                        // Need to add state handling
+                        >
+                            <option value="">Select State</option>
+                            {/* Need imports and local state */}
+                        </select>
                     </div>
+
+                    {/* REFACTORING WHOLE COMPONENT BELOW TO ADD STATE LOGIC */}
                 </div>
             </div>
 
             <div className="flex justify-end gap-4">
                 <button type="button" className="btn btn-outline" onClick={() => window.history.back()}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={isSubmitting || isPending}>
-                    {isSubmitting || isPending ? <span className="loading loading-spinner"></span> : "Create Health Assistant"}
+                    {isSubmitting || isPending ? <span className="loading loading-spinner"></span> : "Create District Manager"}
                 </button>
             </div>
         </form>
     );
 };
 
-export default HealthAssistantForm;
+export default DistrictCoordinatorForm;

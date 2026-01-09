@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { PARTNER_TYPES } from "../../../../config/consts";
 import HospitalPartnerForm from "../../../../components/partner-forms/hospital-partner";
+import BonchiMitraPartnerForm from "../../../../components/partner-forms/bonch-mitra-partner";
+import MedicalStorePartnerForm from "../../../../components/partner-forms/medical-partner";
+import HealthAssistantForm from "../../../../components/partner-forms/health-assistant-partner";
+import DistrictCoordinatorForm from "../../../../components/partner-forms/district-coordinator-partner";
 
 const CreatePartner: React.FC = () => {
   const [selectedPartnerType, setSelectedPartnerType] = useState<string | null>(
@@ -15,7 +19,7 @@ const CreatePartner: React.FC = () => {
           Select Partner Type
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {PARTNER_TYPES.map((partnerType) => {
             const Icon = partnerType.icon;
             const isSelected = selectedPartnerType === partnerType.value;
@@ -27,7 +31,7 @@ const CreatePartner: React.FC = () => {
                 onClick={() => setSelectedPartnerType(partnerType.value)}
                 className={`card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-200 border-2 ${
                   isSelected
-                    ? "border-primary bg-primary/50"
+                    ? "border-primary bg-primary/5"
                     : "border-base-300 hover:border-primary/50"
                 }`}
               >
@@ -66,30 +70,14 @@ const CreatePartner: React.FC = () => {
     switch (selectedPartnerType) {
       case "HOSPITAL_PARTNER":
         return <HospitalPartnerForm />;
-      case "BONCHI_MITRA":
-        return (
-          <div className="text-center py-8">
-            <p className="text-lg text-base-content/70">
-              Bonchi Mitra form coming soon...
-            </p>
-          </div>
-        );
-      case "HEALTH_ASSISTANT":
-        return (
-          <div className="text-center py-8">
-            <p className="text-lg text-base-content/70">
-              Health Assistant form coming soon...
-            </p>
-          </div>
-        );
       case "MEDICAL_STORE":
-        return (
-          <div className="text-center py-8">
-            <p className="text-lg text-base-content/70">
-              Medical Store form coming soon...
-            </p>
-          </div>
-        );
+        return <MedicalStorePartnerForm />;
+      case "BONCHI_MITRA":
+        return <BonchiMitraPartnerForm />;
+      case "HEALTH_ASSISTANT":
+        return <HealthAssistantForm />;
+      case "DISTRICT_CORDINATOR":
+        return <DistrictCoordinatorForm />;
       default:
         return null;
     }

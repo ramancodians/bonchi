@@ -64,7 +64,7 @@ AuthRouter.post("/login", async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || "default_secret",
       { expiresIn: "7d" }
     );
@@ -132,7 +132,7 @@ AuthRouter.post("/register", async (req, res) => {
 
     // Auth token
     const token = jwt.sign(
-      { userId: user.id, mobile: user.mobile },
+      { userId: user.id, mobile: user.mobile, role: user.role },
       process.env.JWT_SECRET || "default_secret"
     );
 

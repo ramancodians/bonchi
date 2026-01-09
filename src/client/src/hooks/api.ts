@@ -1,11 +1,12 @@
 import axios from "axios";
-import { API_ENDPOINT } from "../config/consts";
+// import { API_ENDPOINT } from "../config/consts";
+export const API_ENDPOINT = "http://localhost:4000/api";
 
 // Auth APIS
 export const registerUserAPI = async (payload) =>
   axios.post(`${API_ENDPOINT}/auth/register`, payload);
 export const getUserProfileAPI = async () =>
-  (await axios.get(`${API_ENDPOINT}/auth/me`)).data?.data;
+  (await axios.get(`${API_ENDPOINT}/auth/me`)).data?.data || null;
 export const loginUserAPI = async (payload) =>
   axios.post(`${API_ENDPOINT}/auth/login`, payload);
 
@@ -36,9 +37,17 @@ export const searchCustomersAPI = async (query: string, page = 1, limit = 10) =>
   ).data?.data;
 
 // Partner APIS
-export const createPartnerAPI = async (payload) =>
-  (await axios.post(`${API_ENDPOINT}/admin/partners/create`, payload)).data
-    ?.data;
+export const createPartnerAPI = async (payload) => {
+  let endpoint = `${API_ENDPOINT}/admin/partners/create`;
+
+  if (payload.role === "BONCHI_MITRA") {
+    endpoint = `${API_ENDPOINT}/admin/bonchi-mitra/create`;
+  } else if (payload.role === "DISTRICT_CORDINATOR") {
+    endpoint = `${API_ENDPOINT}/admin/district-coordinators/create`;
+  }
+
+  return (await axios.post(endpoint, payload)).data?.data;
+};
 
 export const getPartnerListAPI = async (
   page = 1,
@@ -60,6 +69,45 @@ export const updatePartnerAPI = async (partnerId: string, payload) =>
     )
   ).data?.data;
 
-export const deletePartnerAPI = async (partnerId: string) =>
-  (await axios.delete(`${API_ENDPOINT}/admin/partners/delete/${partnerId}`))
+// Agent APIS
+export const getAgentDashboardAPI = async () =>
+  (await axios.get(`${API_ENDPOINT}/agent/dashboard`)).data?.data;
+
+export const getAgentWalletAPI = async (page = 1, limit = 20) =>
+  (await axios.get(`${API_ENDPOINT}/agent/wallet`, { params: { page, limit } }))
     .data?.data;
+
+export const createAgentUserAPI = async (payload) =>
+  (await axios.post(`${API_ENDPOINT}/agent/create-user`, payload)).data?.data;
+
+export const getAgentUsersAPI = async (page = 1, limit = 10, search?: string) =>
+  (await axios.get(`${API_ENDPOINT}/agent/users`, { params: { page, limit, search } }))
+    .data?.data;
+
+// District Manager APIS
+export const getDMDashboardAPI = async () =>
+  (await axios.get(`${API_ENDPOINT}/district-manager/dashboard`)).data?.data;
+
+export const getDMAgentsAPI = async (page = 1, limit = 10, search?: string) =>
+  (await axios.get(`${API_ENDPOINT}/district-manager/agents`, { params: { page, limit, search } }))
+    .data?.data;
+
+export const createDMAgentAPI = async (payload) =>
+  (await axios.post(`${API_ENDPOINT}/district-manager/create-agent`, payload)).data?.data;
+
+
+
+
+export const deletePartnerAPI = async (partnerId: string) =>
+  (await axios.delete(`${API_ENDPOINT}/admin/partners/delete/${partnerId}`)).data?.data;
+
+// Customer Health Card APIS
+export const getHealthCardAPI = async () =>
+  (await axios.get(`${API_ENDPOINT}/customer/health-card`)).data?.data;
+
+export const getPaymentConfigAPI = async () =>
+  (await axios.get(`${API_ENDPOINT}/customer/health-card/config`)).data?.data;
+
+export const activateHealthCardAPI = async (payload) =>
+  (await axios.post(`${API_ENDPOINT}/customer/health-card/activate`, payload)).data;
+

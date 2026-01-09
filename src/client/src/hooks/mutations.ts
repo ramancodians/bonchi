@@ -6,6 +6,7 @@ import {
   createPartnerAPI,
   updatePartnerAPI,
   deletePartnerAPI,
+  createAgentUserAPI,
 } from "./api";
 import { useMutation } from "@tanstack/react-query";
 
@@ -46,4 +47,9 @@ export const useUpdatePartnerMutation = () =>
 export const useDeletePartnerMutation = () =>
   useMutation({
     mutationFn: deletePartnerAPI,
+  });
+
+export const useCreateAgentUserMutation = () =>
+  useMutation({
+    mutationFn: createAgentUserAPI,
   });
