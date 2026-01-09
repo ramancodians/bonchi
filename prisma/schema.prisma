@@ -30,43 +30,22 @@ model User {
   role                           UserRoles              @default(CUSTOMER)
   is_self_registered             Boolean                @default(false)
   addressBooks                   AddressBook[]
-  agent_created_user_entry       AgentCreatedUser?      @relation("agent_created_user")
+  agent_created_users            agent_created_users?
   bandDetails                    BandDetails[]
   issued_cards                   BonchiCard[]           @relation("issued_cards")
   partner_bonchi_mitras_created  BonchiMitraPartner[]   @relation("bonchi_mitras_created_by_user")
   bonchi_mitra_partner           BonchiMitraPartner?    @relation("bonchi_mitra_partner_to_user")
-  district_coordinator           DistrictCoordinator?   @relation("district_coordinator_to_user")
-  health_assistant               HealthAssistant?       @relation("health_assistant_to_user")
+  district_coordinators          district_coordinators?
+  health_assistants              health_assistants?
   partner_hospitals_created      HospitalPartner[]      @relation("hospitals_partner_created_by_user")
   hospital_partner               HospitalPartner?       @relation("hospital_partner_to_user")
   partner_medical_stores_created MedicalStore[]         @relation("medical_stores_created_by_user")
   medical_store                  MedicalStore?          @relation("medical_store_to_user")
   operationSupportForms          OperationSupportForm[]
-  payments                       Payment[]
+  payments                       payments[]
 
   @@index([email])
   @@map("users")
-}
-
-model HealthAssistant {
-  id               String    @id @default(cuid())
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
-  user_id          String    @unique
-  date_of_birth    DateTime?
-  gender           Gender?
-  aadhaar_number   String?
-  profession       String?
-  qualification    String?
-  specialization   String?
-  experience_years Int?
-  address          String?
-  is_verified      Boolean   @default(false)
-  status           String    @default("active")
-  user             User      @relation("health_assistant_to_user", fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id])
-  @@map("health_assistants")
 }
 
 model OperationSupportForm {
@@ -125,38 +104,19 @@ model AddressBook {
 }
 
 model BonchiCard {
-  id              String    @id @default(cuid())
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  id              String     @id @default(cuid())
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
   user_id         String
-  card_number     String    @unique
+  card_number     String     @unique
   expiry_date     DateTime
   activation_date DateTime?
-  status          String    @default("pending")
-  user            User      @relation("issued_cards", fields: [user_id], references: [id], onDelete: Cascade)
-  payments        Payment[]
+  status          String     @default("pending")
+  user            User       @relation("issued_cards", fields: [user_id], references: [id], onDelete: Cascade)
+  payments        payments[]
 
   @@index([user_id])
   @@map("bonchi_cards")
-}
-
-model Payment {
-  id             String      @id @default(cuid())
-  created_at     DateTime    @default(now())
-  user_id        String
-  bonchi_card_id String?
-  amount         Decimal     @db.Decimal(10, 2)
-  currency       String      @default("INR")
-  payment_id     String      @unique
-  order_id       String?
-  status         String
-  payment_type   String
-  bonchi_card    BonchiCard? @relation(fields: [bonchi_card_id], references: [id])
-  user           User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id])
-  @@index([payment_id])
-  @@map("payments")
 }
 
 model HospitalPartner {
@@ -224,38 +184,38 @@ model MedicalStore {
 }
 
 model BonchiMitraPartner {
-  id                            String             @id @default(cuid())
-  created_at                    DateTime           @default(now())
-  updated_at                    DateTime           @updatedAt
-  user_id                       String             @unique
+  id                            String                @id @default(cuid())
+  created_at                    DateTime              @default(now())
+  updated_at                    DateTime              @updatedAt
+  user_id                       String                @unique
   created_by_user_id            String?
-  aadhaar_number                String             @unique
-  pan_number                    String             @unique
+  aadhaar_number                String                @unique
+  pan_number                    String                @unique
   live_photo_url                String?
   shop_photo_url                String?
   shop_centre_name              String
   business_types                BusinessType[]
   business_other                String?
   reporting_district_manager    String?
-  agent_code                    String             @unique
+  agent_code                    String                @unique
   area_type                     AreaType?
   bank_account_holder_name      String
   bank_account_number           String
   bank_ifsc_code                String
   bank_name                     String
   upi_id                        String?
-  agent_agreement_accepted      Boolean            @default(false)
-  commission_structure_accepted Boolean            @default(false)
-  data_privacy_consent          Boolean            @default(false)
-  kyc_status                    KYCStatus          @default(PENDING)
-  agent_status                  AgentStatus        @default(ACTIVE)
-  is_self_registered            Boolean            @default(false)
-  addresses                     AddressBook[]      @relation("bonchi_mitra_partner_addresses")
-  created_users                 AgentCreatedUser[]
-  transactions                  AgentTransaction[]
-  wallet                        AgentWallet?
-  created_by_user               User?              @relation("bonchi_mitras_created_by_user", fields: [created_by_user_id], references: [id])
-  user                          User               @relation("bonchi_mitra_partner_to_user", fields: [user_id], references: [id], onDelete: Cascade)
+  agent_agreement_accepted      Boolean               @default(false)
+  commission_structure_accepted Boolean               @default(false)
+  data_privacy_consent          Boolean               @default(false)
+  kyc_status                    KYCStatus             @default(PENDING)
+  agent_status                  AgentStatus           @default(ACTIVE)
+  is_self_registered            Boolean               @default(false)
+  addresses                     AddressBook[]         @relation("bonchi_mitra_partner_addresses")
+  agent_created_users           agent_created_users[]
+  agent_transactions            agent_transactions[]
+  agent_wallets                 agent_wallets?
+  created_by_user               User?                 @relation("bonchi_mitras_created_by_user", fields: [created_by_user_id], references: [id])
+  user                          User                  @relation("bonchi_mitra_partner_to_user", fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
   @@index([agent_code])
@@ -277,90 +237,112 @@ model BandDetails {
   @@map("band_details")
 }
 
-model DistrictCoordinator {
-  id                 String      @id @default(cuid())
+model agent_created_users {
+  id                    String             @id
+  created_at            DateTime           @default(now())
+  agent_id              String
+  user_id               String             @unique
+  health_card_id        String?
+  commission_amount     Decimal            @default(0.00) @db.Decimal(10, 2)
+  status                String             @default("activated")
+  bonchi_mitra_partners BonchiMitraPartner @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+  users                 User               @relation(fields: [user_id], references: [id])
+
+  @@index([agent_id])
+  @@index([user_id])
+}
+
+model agent_settings {
+  id                          String   @id
+  updated_at                  DateTime
+  registration_fee            Decimal  @default(0.00) @db.Decimal(10, 2)
+  card_activation_fee         Decimal  @default(100.00) @db.Decimal(10, 2)
+  agent_commission_percentage Decimal  @default(10.00) @db.Decimal(5, 2)
+  min_wallet_balance          Decimal  @default(0.00) @db.Decimal(10, 2)
+  updated_by                  String?
+}
+
+model agent_transactions {
+  id                    String             @id
+  created_at            DateTime           @default(now())
+  agent_id              String
+  transaction_type      String
+  amount                Decimal            @db.Decimal(10, 2)
+  description           String?
+  reference_type        String?
+  reference_id          String?
+  balance_before        Decimal            @db.Decimal(10, 2)
+  balance_after         Decimal            @db.Decimal(10, 2)
+  performed_by          String?
+  bonchi_mitra_partners BonchiMitraPartner @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+
+  @@index([agent_id])
+}
+
+model agent_wallets {
+  id                    String             @id
+  created_at            DateTime           @default(now())
+  updated_at            DateTime
+  agent_id              String             @unique
+  balance               Decimal            @default(0.00) @db.Decimal(10, 2)
+  total_earned          Decimal            @default(0.00) @db.Decimal(10, 2)
+  total_spent           Decimal            @default(0.00) @db.Decimal(10, 2)
+  bonchi_mitra_partners BonchiMitraPartner @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+
+  @@index([agent_id])
+}
+
+model district_coordinators {
+  id                 String      @id
   created_at         DateTime    @default(now())
-  updated_at         DateTime    @updatedAt
+  updated_at         DateTime
   user_id            String      @unique
   assigned_districts String[]
   employee_id        String?
   official_email     String?
   official_phone     String?
   status             AgentStatus @default(ACTIVE)
-  user               User        @relation("district_coordinator_to_user", fields: [user_id], references: [id], onDelete: Cascade)
+  users              User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
-  @@map("district_coordinators")
 }
 
-model AgentWallet {
-  id                   String             @id @default(cuid())
-  created_at           DateTime           @default(now())
-  updated_at           DateTime           @updatedAt
-  agent_id             String             @unique
-  balance              Decimal            @default(0.00) @db.Decimal(10, 2)
-  total_earned         Decimal            @default(0.00) @db.Decimal(10, 2)
-  total_spent          Decimal            @default(0.00) @db.Decimal(10, 2)
-  bonchi_mitra_partner BonchiMitraPartner @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+model health_assistants {
+  id               String    @id
+  created_at       DateTime  @default(now())
+  updated_at       DateTime
+  user_id          String    @unique
+  date_of_birth    DateTime?
+  gender           Gender?
+  aadhaar_number   String?
+  profession       String?
+  qualification    String?
+  specialization   String?
+  experience_years Int?
+  address          String?
+  is_verified      Boolean   @default(false)
+  status           String    @default("active")
+  users            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@index([agent_id])
-  @@map("agent_wallets")
-}
-
-model AgentTransaction {
-  id                   String             @id @default(cuid())
-  created_at           DateTime           @default(now())
-  agent_id             String
-  transaction_type     String
-  amount               Decimal            @db.Decimal(10, 2)
-  description          String?
-  reference_type       String?
-  reference_id         String?
-  balance_before       Decimal            @db.Decimal(10, 2)
-  balance_after        Decimal            @db.Decimal(10, 2)
-  performed_by         String?
-  bonchi_mitra_partner BonchiMitraPartner @relation(fields: [agent_id], references: [id], onDelete: Cascade)
-
-  @@index([agent_id])
-  @@map("agent_transactions")
-}
-
-model AgentCreatedUser {
-  id                   String             @id @default(cuid())
-  created_at           DateTime           @default(now())
-  agent_id             String
-  user_id              String             @unique
-  health_card_id       String?
-  commission_amount    Decimal            @default(0.00) @db.Decimal(10, 2)
-  status               String             @default("activated")
-  bonchi_mitra_partner BonchiMitraPartner @relation(fields: [agent_id], references: [id], onDelete: Cascade)
-  user                 User               @relation("agent_created_user", fields: [user_id], references: [id])
-
-  @@index([agent_id])
   @@index([user_id])
-  @@map("agent_created_users")
 }
 
-model AgentSettings {
-  id                          String   @id @default(cuid())
-  updated_at                  DateTime @updatedAt
-  registration_fee            Decimal  @default(0.00) @db.Decimal(10, 2)
-  card_activation_fee         Decimal  @default(100.00) @db.Decimal(10, 2)
-  agent_commission_percentage Decimal  @default(10.00) @db.Decimal(5, 2)
-  min_wallet_balance          Decimal  @default(0.00) @db.Decimal(10, 2)
-  updated_by                  String?
+model payments {
+  id             String      @id
+  created_at     DateTime    @default(now())
+  user_id        String
+  bonchi_card_id String?
+  amount         Decimal     @db.Decimal(10, 2)
+  currency       String      @default("INR")
+  payment_id     String      @unique
+  order_id       String?
+  status         String
+  payment_type   String
+  bonchi_cards   BonchiCard? @relation(fields: [bonchi_card_id], references: [id])
+  users          User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@map("agent_settings")
-}
-
-model BannerImage {
-  id         String   @id @default(cuid())
-  created_at DateTime @default(now())
-  url        String
-  isActive   Boolean  @default(true)
-  order      Int      @default(0)
-
-  @@map("banner_images")
+  @@index([payment_id])
+  @@index([user_id])
 }
 
 enum Gender {
