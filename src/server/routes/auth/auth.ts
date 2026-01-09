@@ -170,7 +170,7 @@ AuthRouter.get("/me", authMiddleware, async (req, res) => {
   try {
     const user = await prisma.user.findFirst({
       where: {
-        id: req.userInfo.id,
+        id: req.userInfo.userId,
       },
     });
     if (!user) {

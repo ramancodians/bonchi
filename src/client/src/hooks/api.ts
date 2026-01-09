@@ -19,3 +19,47 @@ export const updateSupportAPI = async (supportId, payload) =>
     ?.data;
 export const getSupportByIdAPI = async (supportId) =>
   (await axios.get(`${API_ENDPOINT}/support/item/${supportId}`)).data?.data;
+
+// Customer/Admin APIS
+export const getCustomerListAPI = async (page = 1, limit = 10) =>
+  (
+    await axios.get(`${API_ENDPOINT}/admin/customers/list`, {
+      params: { page, limit },
+    })
+  ).data?.data;
+
+export const searchCustomersAPI = async (query: string, page = 1, limit = 10) =>
+  (
+    await axios.get(`${API_ENDPOINT}/admin/customers/search`, {
+      params: { q: query, page, limit },
+    })
+  ).data?.data;
+
+// Partner APIS
+export const createPartnerAPI = async (payload) =>
+  (await axios.post(`${API_ENDPOINT}/admin/partners/create`, payload)).data
+    ?.data;
+
+export const getPartnerListAPI = async (
+  page = 1,
+  limit = 10,
+  role?: string,
+  search?: string
+) =>
+  (
+    await axios.get(`${API_ENDPOINT}/admin/partners/list`, {
+      params: { page, limit, role, search },
+    })
+  ).data?.data;
+
+export const updatePartnerAPI = async (partnerId: string, payload) =>
+  (
+    await axios.put(
+      `${API_ENDPOINT}/admin/partners/update/${partnerId}`,
+      payload
+    )
+  ).data?.data;
+
+export const deletePartnerAPI = async (partnerId: string) =>
+  (await axios.delete(`${API_ENDPOINT}/admin/partners/delete/${partnerId}`))
+    .data?.data;

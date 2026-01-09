@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Layout from "../../components/layout";
 import CustomerDashboard from "./customer/customerDashboard";
 import Appointments from "./customer/appointments";

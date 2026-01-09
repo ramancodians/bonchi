@@ -3,6 +3,9 @@ import {
   loginUserAPI,
   createNewSupportAPI,
   updateSupportAPI,
+  createPartnerAPI,
+  updatePartnerAPI,
+  deletePartnerAPI,
 } from "./api";
 import { useMutation } from "@tanstack/react-query";
 
@@ -26,4 +29,21 @@ export const useUpdateSupportMutation = () =>
   useMutation({
     mutationFn: ({ supportId, payload }: { supportId: string; payload: any }) =>
       updateSupportAPI(supportId, payload),
+  });
+
+// Partner Mutations
+export const useCreatePartnerMutation = () =>
+  useMutation({
+    mutationFn: createPartnerAPI,
+  });
+
+export const useUpdatePartnerMutation = () =>
+  useMutation({
+    mutationFn: ({ partnerId, payload }: { partnerId: string; payload: any }) =>
+      updatePartnerAPI(partnerId, payload),
+  });
+
+export const useDeletePartnerMutation = () =>
+  useMutation({
+    mutationFn: deletePartnerAPI,
   });

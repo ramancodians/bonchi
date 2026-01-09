@@ -6,9 +6,11 @@ import {
   AiOutlineFileText,
   AiOutlineMore,
 } from "react-icons/ai";
+import { useUser } from "../hooks/query";
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  const { data: userData } = useUser();
 
   const navItems = [
     {
@@ -35,6 +37,13 @@ const Layout = ({ children }) => {
 
   return (
     <div className="flex flex-col h-screen">
+      {userData?.role === "SUPER_ADMIN" && (
+        <div className="bg-red-400 ">
+          <div className="container mx-auto">
+            <p className="text-white font-bold">Super Admin</p>
+          </div>
+        </div>
+      )}
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop Sidepanel - hidden on mobile */}
         <div className="hidden lg:block">

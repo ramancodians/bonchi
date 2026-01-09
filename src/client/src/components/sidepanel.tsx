@@ -11,6 +11,8 @@ import {
 import Logo from "./../assets/logo.png";
 import { useUser } from "../hooks/query";
 import { getFullName } from "../utils/formattingUtils";
+import { useMemo } from "react";
+import { FaUsers } from "react-icons/fa";
 
 interface NavItem {
   name: string;
@@ -18,32 +20,52 @@ interface NavItem {
   icon: React.ReactNode;
 }
 
+const SUPER_ADMIN_LINKS: NavItem[] = [
+  {
+    name: "Customers",
+    path: "/admin/all-customers",
+    icon: <FaUsers size={24} />,
+  },
+  {
+    name: "Partners",
+    path: "/admin/all-partners",
+    icon: <FaUsers size={24} />,
+  },
+];
+
+const CUSTOMER_LINKS: NavItem[] = [
+  {
+    name: "Home",
+    path: "/dashboard",
+    icon: <AiOutlineHome size={24} />,
+  },
+  {
+    name: "Appointments",
+    path: "/dashboard/appointments",
+    icon: <AiOutlineCalendar size={24} />,
+  },
+  {
+    name: "Support",
+    path: "/dashboard/support",
+    icon: <AiOutlineFileText size={24} />,
+  },
+  {
+    name: "More",
+    path: "/dashboard/more",
+    icon: <AiOutlineMore size={24} />,
+  },
+];
+
 const SidePanel = () => {
   const location = useLocation();
   const { data: userData } = useUser();
 
-  const navItems: NavItem[] = [
-    {
-      name: "Home",
-      path: "/dashboard",
-      icon: <AiOutlineHome size={24} />,
-    },
-    {
-      name: "Appointments",
-      path: "/dashboard/appointments",
-      icon: <AiOutlineCalendar size={24} />,
-    },
-    {
-      name: "Support",
-      path: "/dashboard/support",
-      icon: <AiOutlineFileText size={24} />,
-    },
-    {
-      name: "More",
-      path: "/dashboard/more",
-      icon: <AiOutlineMore size={24} />,
-    },
-  ];
+  const navItems = useMemo(() => {
+    if (userData && userData?.role === "SUPER_ADMIN") {
+      return SUPER_ADMIN_LINKS;
+    }
+    return CUSTOMER_LINKS;
+  }, [userData]);
 
   const handleLogout = () => {
     // Add logout logic here
