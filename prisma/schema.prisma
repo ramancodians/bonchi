@@ -1,21 +1,348 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-// COPILOT INSTRUCTIONS:
-// - Always use named relations when creating relationships between models
-// - Naming convention: Use descriptive names like "ModelAToModelB" for the @relation name
-// - Example: @relation("HospitalPartnerToUser") on both sides of the relationship
-// - This prevents ambiguity when multiple relations exist between the same models
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id                             String                 @id @default(cuid())
+  createdAt                      DateTime               @default(now())
+  updatedAt                      DateTime               @updatedAt
+  gender                         Gender?
+  age                            Int?
+  mobile                         String                 @unique
+  village                        String?
+  block                          String?
+  district                       String?
+  state                          String?
+  pincode                        String?
+  ayushmanCardAvailable          AyushmanCardStatus?
+  customerConsent                Boolean                @default(false)
+  termsAccepted                  Boolean                @default(false)
+  dob                            DateTime?
+  email                          String?                @unique
+  first_name                     String                 @default("")
+  guardian_name                  String?
+  last_name                      String                 @default("")
+  password                       String?
+  role                           UserRoles              @default(CUSTOMER)
+  is_self_registered             Boolean                @default(false)
+  addressBooks                   AddressBook[]
+  agent_created_users            agent_created_users?
+  bandDetails                    BandDetails[]
+  issued_cards                   BonchiCard[]           @relation("issued_cards")
+  partner_bonchi_mitras_created  BonchiMitraPartner[]   @relation("bonchi_mitras_created_by_user")
+  bonchi_mitra_partner           BonchiMitraPartner?    @relation("bonchi_mitra_partner_to_user")
+  district_coordinators          district_coordinators?
+  health_assistants              health_assistants?
+  partner_hospitals_created      HospitalPartner[]      @relation("hospitals_partner_created_by_user")
+  hospital_partner               HospitalPartner?       @relation("hospital_partner_to_user")
+  partner_medical_stores_created MedicalStore[]         @relation("medical_stores_created_by_user")
+  medical_store                  MedicalStore?          @relation("medical_store_to_user")
+  operationSupportForms          OperationSupportForm[]
+  payments                       payments[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model OperationSupportForm {
+  id                         String        @id @default(cuid())
+  created_at                 DateTime      @default(now())
+  updated_at                 DateTime      @updatedAt
+  user_id                    String
+  patient_name               String
+  age                        Int?
+  gender                     Gender?       @default(OTHER)
+  relationship               String?
+  hospital_name              String?
+  doctor_name                String?
+  expected_surgery_date      DateTime?
+  type_of_surgery            String?
+  estimated_cost             Int?
+  monthly_income             Int?
+  number_of_dependents       Int?
+  has_insurance              Boolean?      @default(false)
+  required_support_percetage Int?
+  additional_details         String?
+  is_terms_accepted          Boolean       @default(false)
+  status                     SupportStatus @default(PENDING)
+  user                       User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("operation_support_forms")
+}
+
+model AddressBook {
+  id                      String              @id @default(cuid())
+  created_at              DateTime            @default(now())
+  updated_at              DateTime            @updatedAt
+  address_type            String?
+  is_primary              Boolean             @default(false)
+  full_address            String
+  village_ward            String?
+  area_locality           String?
+  block                   String?
+  district                String?
+  state                   String?
+  pincode                 String?
+  hospital_partner_id     String?
+  medical_store_id        String?
+  bonchi_mitra_partner_id String?
+  userId                  String?
+  bonchi_mitra_partner    BonchiMitraPartner? @relation("bonchi_mitra_partner_addresses", fields: [bonchi_mitra_partner_id], references: [id], onDelete: Cascade)
+  hospital_partner        HospitalPartner?    @relation("hospital_partner_addresses", fields: [hospital_partner_id], references: [id], onDelete: Cascade)
+  medical_store           MedicalStore?       @relation("medical_store_addresses", fields: [medical_store_id], references: [id], onDelete: Cascade)
+  user                    User?               @relation(fields: [userId], references: [id])
+
+  @@index([hospital_partner_id])
+  @@index([medical_store_id])
+  @@index([bonchi_mitra_partner_id])
+  @@map("address_book")
+}
+
+model BonchiCard {
+  id              String     @id @default(cuid())
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  user_id         String
+  card_number     String     @unique
+  expiry_date     DateTime
+  activation_date DateTime?
+  status          String     @default("pending")
+  user            User       @relation("issued_cards", fields: [user_id], references: [id], onDelete: Cascade)
+  payments        payments[]
+
+  @@index([user_id])
+  @@map("bonchi_cards")
+}
+
+model HospitalPartner {
+  id                      String             @id @default(cuid())
+  created_at              DateTime           @default(now())
+  updated_at              DateTime           @updatedAt
+  hospital_name           String
+  email                   String?
+  year_of_establishment   Int?
+  alternate_mobile_number String?
+  contact_person_name     String
+  designation             String?
+  diagnostic_discount     Int?
+  free_services           String?
+  hospital_types          HospitalType[]
+  medical_services        MedicalService[]
+  mobile_number           String
+  opd_discount            Int?
+  registration_number     String             @unique
+  specialties             MedicalSpecialty[]
+  specialty_other         String?
+  surgery_discount        Int?
+  user_id                 String             @unique
+  created_by_user_id      String?
+  is_self_registered      Boolean            @default(false)
+  addresses               AddressBook[]      @relation("hospital_partner_addresses")
+  created_by_user         User?              @relation("hospitals_partner_created_by_user", fields: [created_by_user_id], references: [id])
+  user                    User               @relation("hospital_partner_to_user", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("hospital_partners")
+}
+
+model MedicalStore {
+  id                         String        @id @default(cuid())
+  created_at                 DateTime      @default(now())
+  updated_at                 DateTime      @updatedAt
+  user_id                    String        @unique
+  created_by_user_id         String?
+  store_name                 String
+  owner_name                 String
+  drug_license_number        String        @unique
+  gst_number                 String?
+  mobile_number              String
+  alternate_mobile_number    String?
+  email                      String?
+  medicine_discount          Int?
+  generic_medicine_discount  Int?
+  home_delivery_available    Boolean       @default(false)
+  bonchi_healthcard_accepted Boolean       @default(true)
+  display_partner_board      Boolean       @default(true)
+  drug_license_copy_url      String?
+  store_photo_url            String?
+  owner_aadhaar_pan_url      String?
+  discount_agreement_consent Boolean       @default(false)
+  insurance_understanding    Boolean       @default(false)
+  terms_accepted             Boolean       @default(false)
+  is_self_registered         Boolean       @default(false)
+  addresses                  AddressBook[] @relation("medical_store_addresses")
+  created_by_user            User?         @relation("medical_stores_created_by_user", fields: [created_by_user_id], references: [id])
+  user                       User          @relation("medical_store_to_user", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("medical_stores")
+}
+
+model BonchiMitraPartner {
+  id                            String                @id @default(cuid())
+  created_at                    DateTime              @default(now())
+  updated_at                    DateTime              @updatedAt
+  user_id                       String                @unique
+  created_by_user_id            String?
+  aadhaar_number                String                @unique
+  pan_number                    String                @unique
+  live_photo_url                String?
+  shop_photo_url                String?
+  shop_centre_name              String
+  business_types                BusinessType[]
+  business_other                String?
+  reporting_district_manager    String?
+  agent_code                    String                @unique
+  area_type                     AreaType?
+  bank_account_holder_name      String
+  bank_account_number           String
+  bank_ifsc_code                String
+  bank_name                     String
+  upi_id                        String?
+  agent_agreement_accepted      Boolean               @default(false)
+  commission_structure_accepted Boolean               @default(false)
+  data_privacy_consent          Boolean               @default(false)
+  kyc_status                    KYCStatus             @default(PENDING)
+  agent_status                  AgentStatus           @default(ACTIVE)
+  is_self_registered            Boolean               @default(false)
+  addresses                     AddressBook[]         @relation("bonchi_mitra_partner_addresses")
+  agent_created_users           agent_created_users[]
+  agent_transactions            agent_transactions[]
+  agent_wallets                 agent_wallets?
+  created_by_user               User?                 @relation("bonchi_mitras_created_by_user", fields: [created_by_user_id], references: [id])
+  user                          User                  @relation("bonchi_mitra_partner_to_user", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([agent_code])
+  @@map("bonchi_mitra_partners")
+}
+
+model BandDetails {
+  id                       String   @id @default(cuid())
+  created_at               DateTime @default(now())
+  updated_at               DateTime @updatedAt
+  user_id                  String
+  bank_account_holder_name String
+  bank_account_number      String
+  bank_ifsc_code           String
+  bank_name                String
+  upi_id                   String?
+  user                     User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("band_details")
+}
+
+model agent_created_users {
+  id                    String             @id
+  created_at            DateTime           @default(now())
+  agent_id              String
+  user_id               String             @unique
+  health_card_id        String?
+  commission_amount     Decimal            @default(0.00) @db.Decimal(10, 2)
+  status                String             @default("activated")
+  bonchi_mitra_partners BonchiMitraPartner @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+  users                 User               @relation(fields: [user_id], references: [id])
+
+  @@index([agent_id])
+  @@index([user_id])
+}
+
+model agent_settings {
+  id                          String   @id
+  updated_at                  DateTime
+  registration_fee            Decimal  @default(0.00) @db.Decimal(10, 2)
+  card_activation_fee         Decimal  @default(100.00) @db.Decimal(10, 2)
+  agent_commission_percentage Decimal  @default(10.00) @db.Decimal(5, 2)
+  min_wallet_balance          Decimal  @default(0.00) @db.Decimal(10, 2)
+  updated_by                  String?
+}
+
+model agent_transactions {
+  id                    String             @id
+  created_at            DateTime           @default(now())
+  agent_id              String
+  transaction_type      String
+  amount                Decimal            @db.Decimal(10, 2)
+  description           String?
+  reference_type        String?
+  reference_id          String?
+  balance_before        Decimal            @db.Decimal(10, 2)
+  balance_after         Decimal            @db.Decimal(10, 2)
+  performed_by          String?
+  bonchi_mitra_partners BonchiMitraPartner @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+
+  @@index([agent_id])
+}
+
+model agent_wallets {
+  id                    String             @id
+  created_at            DateTime           @default(now())
+  updated_at            DateTime
+  agent_id              String             @unique
+  balance               Decimal            @default(0.00) @db.Decimal(10, 2)
+  total_earned          Decimal            @default(0.00) @db.Decimal(10, 2)
+  total_spent           Decimal            @default(0.00) @db.Decimal(10, 2)
+  bonchi_mitra_partners BonchiMitraPartner @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+
+  @@index([agent_id])
+}
+
+model district_coordinators {
+  id                 String      @id
+  created_at         DateTime    @default(now())
+  updated_at         DateTime
+  user_id            String      @unique
+  assigned_districts String[]
+  employee_id        String?
+  official_email     String?
+  official_phone     String?
+  status             AgentStatus @default(ACTIVE)
+  users              User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model health_assistants {
+  id               String    @id
+  created_at       DateTime  @default(now())
+  updated_at       DateTime
+  user_id          String    @unique
+  date_of_birth    DateTime?
+  gender           Gender?
+  aadhaar_number   String?
+  profession       String?
+  qualification    String?
+  specialization   String?
+  experience_years Int?
+  address          String?
+  is_verified      Boolean   @default(false)
+  status           String    @default("active")
+  users            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model payments {
+  id             String      @id
+  created_at     DateTime    @default(now())
+  user_id        String
+  bonchi_card_id String?
+  amount         Decimal     @db.Decimal(10, 2)
+  currency       String      @default("INR")
+  payment_id     String      @unique
+  order_id       String?
+  status         String
+  payment_type   String
+  bonchi_cards   BonchiCard? @relation(fields: [bonchi_card_id], references: [id])
+  users          User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([payment_id])
+  @@index([user_id])
 }
 
 enum Gender {
@@ -30,13 +357,13 @@ enum AyushmanCardStatus {
 }
 
 enum UserRoles {
-  CUSTOMER // Card holder
-  BONCHI_MITRA // Agent / Partner
-  HOSPITAL_PARTNER // Service Provider
+  CUSTOMER
+  BONCHI_MITRA
+  HOSPITAL_PARTNER
+  SUPER_ADMIN
   HEALTH_ASSISTANT
   MEDICAL_STORE
-  DISTRICT_CORDINATOR // Sensitive role, Oversees operations in a district
-  SUPER_ADMIN // Sensitive role, should be assigned manually in DB only
+  DISTRICT_CORDINATOR
 }
 
 enum SupportStatus {
@@ -96,312 +423,4 @@ enum AgentStatus {
   ACTIVE
   HOLD
   DISABLED
-}
-
-model User {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Personal Information
-  first_name    String    @default("")
-  last_name     String    @default("")
-  email         String?   @unique
-  guardian_name String?
-  gender        Gender?
-  age           Int?
-  mobile        String    @unique
-  dob           DateTime?
-  password      String?
-
-  // Address Information
-  village  String?
-  block    String?
-  district String?
-  state    String?
-  pincode  String?
-
-  // Additional Information
-  ayushmanCardAvailable AyushmanCardStatus?
-  is_self_registered    Boolean             @default(false)
-
-  // Consent
-  customerConsent                Boolean                @default(false)
-  termsAccepted                  Boolean                @default(false)
-  operationSupportForms          OperationSupportForm[]
-  role                           UserRoles              @default(CUSTOMER)
-  issued_cards                   BonchiCard[]           @relation("issued_cards")
-  hospital_partner               HospitalPartner?       @relation("hospital_partner_to_user")
-  partner_hospitals_created      HospitalPartner[]      @relation("hospitals_partner_created_by_user")
-  medical_store                  MedicalStore?          @relation("medical_store_to_user")
-  partner_medical_stores_created MedicalStore[]         @relation("medical_stores_created_by_user")
-  bonchi_mitra_partner           BonchiMitraPartner?    @relation("bonchi_mitra_partner_to_user")
-  partner_bonchi_mitras_created  BonchiMitraPartner[]   @relation("bonchi_mitras_created_by_user")
-  bandDetails                    BandDetails[]
-  addressBooks                   AddressBook[]
-
-  @@index([email])
-  @@map("users")
-}
-
-model OperationSupportForm {
-  id         String   @id @default(cuid())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  // Foreign Key to User
-  user_id String
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  // Personal Information
-  patient_name String
-  age          Int?
-  gender       Gender? @default(OTHER)
-  relationship String?
-
-  // Contact Information
-  hospital_name         String?
-  doctor_name           String?
-  expected_surgery_date DateTime?
-  type_of_surgery       String?
-  estimated_cost        Int?
-
-  // Financial Information
-  monthly_income             Int?
-  number_of_dependents       Int?
-  has_insurance              Boolean? @default(false)
-  required_support_percetage Int?
-
-  // Additional Information
-  additional_details String?
-  is_terms_accepted  Boolean       @default(false)
-  status             SupportStatus @default(PENDING)
-
-  @@index([user_id])
-  @@map("operation_support_forms")
-}
-
-model AddressBook {
-  id         String   @id @default(cuid())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  // Address Type Identifier
-  address_type String? // e.g., "Main Office", "Branch", "Warehouse"
-  is_primary   Boolean @default(false)
-
-  // Address Fields
-  full_address  String
-  village_ward  String?
-  area_locality String?
-  block         String?
-  district      String?
-  state         String?
-  pincode       String?
-
-  // Relations to Partners
-  hospital_partner_id String?
-  hospital_partner    HospitalPartner? @relation("hospital_partner_addresses", fields: [hospital_partner_id], references: [id], onDelete: Cascade)
-
-  medical_store_id String?
-  medical_store    MedicalStore? @relation("medical_store_addresses", fields: [medical_store_id], references: [id], onDelete: Cascade)
-
-  bonchi_mitra_partner_id String?
-  bonchi_mitra_partner    BonchiMitraPartner? @relation("bonchi_mitra_partner_addresses", fields: [bonchi_mitra_partner_id], references: [id], onDelete: Cascade)
-  user                    User?               @relation(fields: [userId], references: [id])
-  userId                  String?
-
-  @@index([hospital_partner_id])
-  @@index([medical_store_id])
-  @@index([bonchi_mitra_partner_id])
-  @@map("address_book")
-}
-
-model BonchiCard {
-  id         String   @id @default(cuid())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  // Foreign Key to User
-  user_id String
-  user    User   @relation("issued_cards", fields: [user_id], references: [id], onDelete: Cascade)
-
-  card_number String   @unique
-  expiry_date DateTime
-
-  @@index([user_id])
-  @@map("bonchi_cards")
-}
-
-model HospitalPartner {
-  id         String   @id @default(cuid())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  // Foreign Key to User (for login credentials)
-  user_id String @unique
-  user    User   @relation("hospital_partner_to_user", fields: [user_id], references: [id], onDelete: Cascade)
-
-  created_by_user_id String?
-  created_by_user    User?   @relation("hospitals_partner_created_by_user", fields: [created_by_user_id], references: [id])
-
-  // Hospital Basic Details
-  hospital_name         String
-  hospital_types        HospitalType[] // Multi-select
-  registration_number   String         @unique
-  year_of_establishment Int?
-
-  // Contact Person Details
-  contact_person_name     String
-  designation             String?
-  mobile_number           String
-  alternate_mobile_number String?
-  email                   String?
-
-  // Address Details (moved to AddressBook model)
-  addresses AddressBook[] @relation("hospital_partner_addresses")
-
-  // Medical Services Offered (Multi-select)
-  medical_services MedicalService[]
-
-  // Specialties Available (Multi-select)
-  specialties     MedicalSpecialty[]
-  specialty_other String? // For "Other" option
-
-  // Bonchi Healthcard Benefit Agreement
-  opd_discount        Int? // Percentage
-  diagnostic_discount Int? // Percentage
-  surgery_discount    Int? // Percentage
-  free_services       String? // Optional text field
-
-  // Registration Type
-  is_self_registered Boolean @default(false)
-
-  @@index([user_id])
-  @@map("hospital_partners")
-}
-
-model MedicalStore {
-  id         String   @id @default(cuid())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  // Foreign Key to User (for login credentials)
-  user_id String @unique
-  user    User   @relation("medical_store_to_user", fields: [user_id], references: [id], onDelete: Cascade)
-
-  created_by_user_id String?
-  created_by_user    User?   @relation("medical_stores_created_by_user", fields: [created_by_user_id], references: [id])
-
-  // Store Basic Details
-  store_name          String
-  owner_name          String
-  drug_license_number String  @unique
-  gst_number          String?
-
-  // Contact Details
-  mobile_number           String
-  alternate_mobile_number String?
-  email                   String?
-
-  // Store Address (moved to AddressBook model)
-  addresses AddressBook[] @relation("medical_store_addresses")
-
-  // Services & Discounts
-  medicine_discount         Int? // Percentage
-  generic_medicine_discount Int? // Percentage
-  home_delivery_available   Boolean @default(false)
-
-  // Bonchi Healthcard Agreement
-  bonchi_healthcard_accepted Boolean @default(true)
-  display_partner_board      Boolean @default(true)
-
-  // Documents (store file paths/URLs)
-  drug_license_copy_url String?
-  store_photo_url       String?
-  owner_aadhaar_pan_url String?
-
-  // Consent & Declaration
-  discount_agreement_consent Boolean @default(false)
-  insurance_understanding    Boolean @default(false)
-  terms_accepted             Boolean @default(false)
-
-  // Registration Type
-  is_self_registered Boolean @default(false)
-
-  @@index([user_id])
-  @@map("medical_stores")
-}
-
-model BonchiMitraPartner {
-  id         String   @id @default(cuid())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  // Foreign Key to User (for login credentials)
-  user_id String @unique
-  user    User   @relation("bonchi_mitra_partner_to_user", fields: [user_id], references: [id], onDelete: Cascade)
-
-  created_by_user_id String?
-  created_by_user    User?   @relation("bonchi_mitras_created_by_user", fields: [created_by_user_id], references: [id])
-
-  // Identity Verification
-  aadhaar_number String  @unique
-  pan_number     String  @unique
-  live_photo_url String?
-  shop_photo_url String?
-
-  // Shop / Work Details
-  shop_centre_name String
-  business_types   BusinessType[] // Multi-select
-  business_other   String? // For "Other" option
-
-  // Shop Address (moved to AddressBook model)
-  addresses AddressBook[] @relation("bonchi_mitra_partner_addresses")
-
-  // Mapping & Control
-  reporting_district_manager String? // Auto-mapped
-  agent_code                 String    @unique // Auto-generated
-  area_type                  AreaType?
-
-  // Bank / Payout
-  bank_account_holder_name String
-  bank_account_number      String
-  bank_ifsc_code           String
-  bank_name                String
-  upi_id                   String? // Optional
-
-  // Agreement & Consent
-  agent_agreement_accepted      Boolean @default(false)
-  commission_structure_accepted Boolean @default(false)
-  data_privacy_consent          Boolean @default(false)
-
-  // Status
-  kyc_status   KYCStatus   @default(PENDING)
-  agent_status AgentStatus @default(ACTIVE)
-
-  // Registration Type
-  is_self_registered Boolean @default(false)
-
-  @@index([user_id])
-  @@index([agent_code])
-  @@map("bonchi_mitra_partners")
-}
-
-model BandDetails {
-  id         String   @id @default(cuid())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  // foreign Key to User
-  user_id String
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  bank_account_holder_name String
-  bank_account_number      String
-  bank_ifsc_code           String
-  bank_name                String
-  upi_id                   String? // Optional
-
-  @@map("band_details")
 }
