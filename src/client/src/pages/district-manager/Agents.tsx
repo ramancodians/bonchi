@@ -1,18 +1,76 @@
 import { useState } from 'react';
-import { Search, Mail, Phone, MapPin, Users, UserPlus } from 'lucide-react';
+import { Search, Mail, Phone, MapPin, Users, UserPlus, Settings, DollarSign, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDMAgents } from '../../hooks/query';
+import { useDMWalletActionMutation, useDMAgentStatusMutation } from '../../hooks/mutations';
+import { toast } from 'react-toastify';
+import { useQueryClient } from '@tanstack/react-query';
 
 function DMAgents() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const { data, isLoading } = useDMAgents(page, 10, search);
+    const queryClient = useQueryClient();
+
+    // Modal State
+    const [selectedAgent, setSelectedAgent] = useState<any>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [amount, setAmount] = useState('');
+    const [action, setAction] = useState('CREDIT');
+    const [remarks, setRemarks] = useState('');
+
+    const walletMutation = useDMWalletActionMutation();
+    const statusMutation = useDMAgentStatusMutation();
 
     const agents = data?.agents || [];
     const pagination = data?.pagination || { total: 0, count: 0 };
 
+    const handleManage = (agent: any) => {
+        setSelectedAgent(agent);
+        setIsModalOpen(true);
+        setAmount('');
+        setRemarks('');
+        setAction('CREDIT');
+    };
+
+    const handleWalletSubmit = async (e: any) => {
+        e.preventDefault();
+        if (!selectedAgent || !amount) return;
+        try {
+            await walletMutation.mutateAsync({
+                agentId: selectedAgent.id,
+                amount: parseFloat(amount),
+                action,
+                remarks
+            });
+            toast.success(`Wallet ${action === 'CREDIT' ? 'credited' : 'debited'} successfully`);
+            setIsModalOpen(false);
+            queryClient.invalidateQueries({ queryKey: ['dmAgents'] });
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Transaction failed');
+        }
+    };
+
+    const handleStatusToggle = async () => {
+        if (!selectedAgent) return;
+        const newStatus = selectedAgent.bonchi_mitra_partner?.agent_status === 'ACTIVE' ? 'BLOCKED' : 'ACTIVE';
+        if (!confirm(`Are you sure you want to ${newStatus === 'BLOCKED' ? 'BLOCK' : 'ACTIVATE'} this agent?`)) return;
+
+        try {
+            await statusMutation.mutateAsync({
+                agentId: selectedAgent.id,
+                status: newStatus
+            });
+            toast.success(`Agent ${newStatus === 'ACTIVE' ? 'activated' : 'blocked'} successfully`);
+            setIsModalOpen(false);
+            queryClient.invalidateQueries({ queryKey: ['dmAgents'] });
+        } catch (error: any) {
+            toast.error('Failed to update status');
+        }
+    };
+
     return (
-        <div className="space-y-8 pb-12">
+        <div className="space-y-8 pb-12 relative">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">My Agents</h1>
@@ -50,12 +108,13 @@ function DMAgents() {
                                 <th className="py-4 px-6 text-sm font-semibold text-gray-600">Location</th>
                                 <th className="py-4 px-6 text-sm font-semibold text-gray-600 text-right">Wallet Balance</th>
                                 <th className="py-4 px-6 text-sm font-semibold text-gray-600 text-center">Status</th>
+                                <th className="py-4 px-6 text-sm font-semibold text-gray-600 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="py-20 text-center">
+                                    <td colSpan={6} className="py-20 text-center">
                                         <div className="flex flex-col items-center gap-3">
                                             <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
                                             <p className="text-gray-500">Loading agents...</p>
@@ -64,7 +123,7 @@ function DMAgents() {
                                 </tr>
                             ) : agents.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="py-20 text-center text-gray-500">
+                                    <td colSpan={6} className="py-20 text-center text-gray-500">
                                         <div className="flex flex-col items-center gap-2">
                                             <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-2">
                                                 <Users size={32} className="text-gray-300" />
@@ -115,9 +174,18 @@ function DMAgents() {
                                             </div>
                                         </td>
                                         <td className="py-4 px-6 text-center">
-                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${agent.bonchi_mitra_partner?.agent_status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${agent.bonchi_mitra_partner?.agent_status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                                 {agent.bonchi_mitra_partner?.agent_status || 'PENDING'}
                                             </span>
+                                        </td>
+                                        <td className="py-4 px-6 text-center">
+                                            <button
+                                                onClick={() => handleManage(agent)}
+                                                className="btn btn-sm btn-ghost bg-gray-100 hover:bg-gray-200 text-gray-600"
+                                            >
+                                                <Settings size={16} />
+                                                Manage
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -126,7 +194,93 @@ function DMAgents() {
                     </table>
                 </div>
 
-                {/* Pagination Controls could be added here similar to other lists */}
+                {/* Manage Modal */}
+                {isModalOpen && selectedAgent && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
+                            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-800">Manage Agent</h2>
+                                    <p className="text-sm text-gray-500">{selectedAgent.first_name} {selectedAgent.last_name} ({selectedAgent.bonchi_mitra_partner?.agent_code})</p>
+                                </div>
+                                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                                    <X size={20} className="text-gray-500" />
+                                </button>
+                            </div>
+
+                            <div className="p-6 space-y-6">
+                                {/* Wallet Section */}
+                                <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="text-gray-600 font-medium flex items-center gap-2">
+                                            <DollarSign size={18} className="text-blue-500" /> Current Balance
+                                        </span>
+                                        <span className="text-2xl font-bold text-blue-700">
+                                            ₹{(parseFloat(selectedAgent.bonchi_mitra_partner?.wallet?.balance || "0")).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+
+                                    <form onSubmit={handleWalletSubmit} className="space-y-3">
+                                        <div className="join w-full">
+                                            <select
+                                                className="select select-bordered join-item focus:outline-none"
+                                                value={action}
+                                                onChange={(e) => setAction(e.target.value)}
+                                            >
+                                                <option value="CREDIT">Add (+)</option>
+                                                <option value="DEBIT">Deduct (-)</option>
+                                            </select>
+                                            <input
+                                                type="number"
+                                                placeholder="Amount"
+                                                className="input input-bordered join-item w-full focus:outline-none"
+                                                value={amount}
+                                                onChange={(e) => setAmount(e.target.value)}
+                                                required
+                                                min="1"
+                                            />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Remarks (Admin Note)"
+                                            className="input input-bordered w-full"
+                                            value={remarks}
+                                            onChange={(e) => setRemarks(e.target.value)}
+                                        />
+                                        <button
+                                            type="submit"
+                                            className={`btn w-full text-white ${action === 'CREDIT' ? 'btn-primary' : 'btn-error'}`}
+                                            disabled={walletMutation.isPending}
+                                        >
+                                            {walletMutation.isPending ? 'Processing...' : (action === 'CREDIT' ? 'Add Funds' : 'Deduct Funds')}
+                                        </button>
+                                    </form>
+                                </div>
+
+                                {/* Status Section */}
+                                <div className="border-t border-gray-100 pt-6">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <h3 className="font-semibold text-gray-800">Account Status</h3>
+                                            <p className="text-sm text-gray-500">
+                                                Currently: <span className={selectedAgent.bonchi_mitra_partner?.agent_status === 'ACTIVE' ? "text-green-600 font-bold" : "text-red-600 font-bold"}>
+                                                    {selectedAgent.bonchi_mitra_partner?.agent_status}
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={handleStatusToggle}
+                                            className={`btn ${selectedAgent.bonchi_mitra_partner?.agent_status === 'ACTIVE' ? 'btn-error btn-outline' : 'btn-success text-white'}`}
+                                            disabled={statusMutation.isPending}
+                                        >
+                                            {selectedAgent.bonchi_mitra_partner?.agent_status === 'ACTIVE' ? 'Block Agent' : 'Activate Agent'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

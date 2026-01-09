@@ -6,13 +6,18 @@ import {
 } from "react-icons/ai";
 import { FaWhatsapp } from "react-icons/fa";
 import Logo from "./../../../assets/logo.png";
-import { useUser } from "../../../hooks/query";
+import { useUser, useHealthCard } from "../../../hooks/query";
 
 const CustomerDashboard = () => {
   const { data: userData, isLoading } = useUser();
 
-  const cardNumber = "BON6 0501 7";
-  const expiryDate = "Nov 2030";
+  /* Health Card Logic */
+  const { data: healthCard, isLoading: isCardLoading } = useHealthCard();
+
+  const cardNumber = healthCard?.card_number || "PENDING";
+  const expiryDate = healthCard?.expiry_date ? new Date(healthCard.expiry_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : "--";
+  const status = healthCard?.status || "PENDING";
+
   const appointmentsCount = 0;
   const additionalMembersCount = 0;
 
@@ -72,15 +77,16 @@ const CustomerDashboard = () => {
 
             <div className="mb-4">
               <h2 className="text-white text-2xl sm:text-3xl font-bold tracking-wider mb-2">
-                {cardNumber}
+                {isCardLoading ? "Loading..." : cardNumber}
               </h2>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-blue-200 text-xs">Expires</p>
                   <p className="text-white text-sm font-medium">{expiryDate}</p>
                 </div>
-                <div className="badge badge-success text-white font-semibold px-3 py-2">
-                  ACTIVE
+                {/* Only show badge if active or specifically requested */}
+                <div className={`badge text-white font-semibold px-3 py-2 ${status === 'active' ? 'badge-success' : 'badge-warning'}`}>
+                  {status.toUpperCase()}
                 </div>
               </div>
             </div>

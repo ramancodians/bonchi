@@ -19,6 +19,13 @@ import FourNotFour from "./pages/fourNotfour";
 import SharedPages from "./pages/dashboard/shared";
 import Layout from "./components/layout";
 
+// Admin Pages
+import AdminDashboard from "./pages/admin/adminDashboard";
+import AdminSupportRequests from "./pages/admin/SupportRequests";
+import AgentList from "./pages/admin/AgentList";
+import CustomerList from "./pages/admin/CustomerList";
+import PartnerList from "./pages/admin/PartnerList";
+
 // Agent Pages
 import AgentDashboard from "./pages/agent/Dashboard";
 import CreateUser from "./pages/agent/CreateUser";
@@ -32,6 +39,10 @@ import DMCreateAgent from "./pages/district-manager/CreateAgent";
 import MedicalStoreDashboard from "./pages/medical-store/Dashboard";
 import HealthAssistantDashboard from "./pages/health-assistant/Dashboard";
 import HospitalDashboard from "./pages/hospital/Dashboard";
+
+import MedicalStoreOrders from "./pages/medical-store/Orders";
+import HealthAssistantSchedule from "./pages/health-assistant/Schedule";
+import HospitalAppointments from "./pages/hospital/Appointments";
 
 function App() {
   const { data: userData } = useUser();
@@ -52,6 +63,19 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register-partner" element={<PartnerRegistration />} />
+
+        {/* Admin Routes - Wrapped in Layout */}
+        <Route path="/admin/*" element={
+          <Layout>
+            <Routes>
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="all-agents" element={<AgentList />} />
+              <Route path="all-customers" element={<CustomerList />} />
+              <Route path="support-requests" element={<AdminSupportRequests />} />
+              <Route path="all-partners" element={<PartnerList />} />
+            </Routes>
+          </Layout>
+        } />
 
         {/* Agent Routes - Protected by Logic in Components or Wrapper? 
             Currently bonchi structure seems to use /dashboard/* for authenticated user.

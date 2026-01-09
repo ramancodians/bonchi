@@ -33,6 +33,11 @@ const SUPER_ADMIN_LINKS: NavItem[] = [
     path: "/admin/all-partners",
     icon: <FaUsers size={24} />,
   },
+  {
+    name: "Support Requests",
+    path: "/admin/support-requests",
+    icon: <AiOutlineFileText size={24} />,
+  },
 ];
 
 

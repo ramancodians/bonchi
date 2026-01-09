@@ -95,6 +95,12 @@ export const getDMAgentsAPI = async (page = 1, limit = 10, search?: string) =>
 export const createDMAgentAPI = async (payload) =>
   (await axios.post(`${API_ENDPOINT}/district-manager/create-agent`, payload)).data?.data;
 
+export const dmWalletActionAPI = async ({ agentId, ...payload }) =>
+  (await axios.post(`${API_ENDPOINT}/district-manager/agent/${agentId}/wallet-action`, payload)).data;
+
+export const dmAgentStatusAPI = async ({ agentId, status }) =>
+  (await axios.post(`${API_ENDPOINT}/district-manager/agent/${agentId}/status`, { status })).data;
+
 
 
 

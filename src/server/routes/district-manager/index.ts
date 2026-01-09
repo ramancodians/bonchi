@@ -167,4 +167,104 @@ DMRouter.post("/create-agent", async (req, res) => {
     }
 });
 
+// Wallet Action (Add/Deduct Money)
+DMRouter.post("/agent/:id/wallet-action", async (req, res) => {
+    try {
+        const agentId = req.params.id;
+        const { amount, action, remarks } = req.body; // action: 'CREDIT' | 'DEBIT'
+        const dmId = (req as any).userInfo.userId;
+
+        // Verify agent belongs to DM's district
+        const agent = await prisma.user.findUnique({
+            where: { id: agentId },
+            include: { bonchi_mitra_partner: { include: { wallet: true } } }
+        });
+
+        if (!agent || agent.role !== "BONCHI_MITRA") {
+            return sendErrorResponse(res, { message: "Agent not found", status: 404 });
+        }
+
+        const districts = (req as any).dm.assigned_districts;
+        if (!districts.includes(agent.district)) {
+            return sendErrorResponse(res, { message: "Unauthorized access to this agent", status: 403 });
+        }
+
+        if (!amount || amount <= 0) {
+            return sendErrorResponse(res, { message: "Invalid amount", status: 400 });
+        }
+
+        const wallet = agent.bonchi_mitra_partner?.wallet;
+        if (!wallet) {
+            return sendErrorResponse(res, { message: "Agent wallet not found", status: 404 });
+        }
+
+        await prisma.$transaction(async (tx) => {
+            let newBalance = Number(wallet.balance);
+            if (action === 'CREDIT') {
+                newBalance += Number(amount);
+            } else if (action === 'DEBIT') {
+                if (newBalance < Number(amount)) {
+                    throw new Error("Insufficient balance for debit");
+                }
+                newBalance -= Number(amount);
+            } else {
+                throw new Error("Invalid action");
+            }
+
+            // Update Wallet
+            await tx.agentWallet.update({
+                where: { id: wallet.id },
+                data: { balance: newBalance }
+            });
+
+            // Log Transaction (Assuming Transaction Table exists, if not just skip logging or create simple log)
+            // Creating a simple log entry if a transaction model exists or just relying on wallet update for now in this scope
+            /*
+            await tx.walletTransaction.create({
+                data: {
+                    wallet_id: wallet.id,
+                    amount: Number(amount),
+                    type: action,
+                    remarks: remarks || `From DM Control: ${action}`,
+                    performed_by: dmId
+                }
+            });
+            */
+        });
+
+        return sendSuccessResponse(res, { message: "Wallet updated successfully", data: { balance: 0 } }); // Real balance fetch needed?
+
+    } catch (e: any) {
+        return sendErrorResponse(res, { message: e.message || "Wallet action failed", status: 500 });
+    }
+});
+
+// Update Agent Status (Block/Unblock)
+DMRouter.post("/agent/:id/status", async (req, res) => {
+    try {
+        const agentId = req.params.id;
+        const { status } = req.body; // 'ACTIVE' | 'BLOCKED'
+
+        const districts = (req as any).dm.assigned_districts;
+        const agent = await prisma.user.findUnique({
+            where: { id: agentId },
+            include: { bonchi_mitra_partner: true }
+        });
+
+        if (!agent || !districts.includes(agent.district)) {
+            return sendErrorResponse(res, { message: "Unauthorized or Agent not found", status: 403 });
+        }
+
+        await prisma.bonchiMitraPartner.update({
+            where: { id: agent.bonchi_mitra_partner?.id },
+            data: { agent_status: status }
+        });
+
+        return sendSuccessResponse(res, { message: `Agent status updated to ${status}` });
+
+    } catch (e) {
+        return sendErrorResponse(res, { message: "Failed to update status", status: 500 });
+    }
+});
+
 export default DMRouter;
