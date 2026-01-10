@@ -37,7 +37,7 @@ const CustomerProfile = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: customer, isLoading, error } = useCustomerProfile(customerId);
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<Customer>>({});
 
@@ -57,7 +57,9 @@ const CustomerProfile = () => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customerProfile", customerId] });
+      queryClient.invalidateQueries({
+        queryKey: ["customerProfile", customerId],
+      });
       setIsEditing(false);
     },
   });
@@ -66,12 +68,15 @@ const CustomerProfile = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    
+
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else if (type === "number") {
-      setFormData((prev) => ({ ...prev, [name]: value ? parseInt(value) : null }));
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value ? parseInt(value) : null,
+      }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value || null }));
     }
@@ -223,7 +228,9 @@ const CustomerProfile = () => {
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-semibold">Guardian Name</span>
+                  <span className="label-text font-semibold">
+                    Guardian Name
+                  </span>
                 </label>
                 {isEditing ? (
                   <input
@@ -240,7 +247,9 @@ const CustomerProfile = () => {
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-semibold">Date of Birth</span>
+                  <span className="label-text font-semibold">
+                    Date of Birth
+                  </span>
                 </label>
                 {isEditing ? (
                   <input
@@ -252,7 +261,9 @@ const CustomerProfile = () => {
                   />
                 ) : (
                   <p className="py-2">
-                    {customer.dob ? new Date(customer.dob).toLocaleDateString() : "N/A"}
+                    {customer.dob
+                      ? new Date(customer.dob).toLocaleDateString()
+                      : "N/A"}
                   </p>
                 )}
               </div>
@@ -449,11 +460,17 @@ const CustomerProfile = () => {
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-semibold">Self Registered</span>
+                  <span className="label-text font-semibold">
+                    Self Registered
+                  </span>
                 </label>
                 <p className="py-2">
                   <span
-                    className={`badge ${customer.is_self_registered ? "badge-success" : "badge-ghost"}`}
+                    className={`badge ${
+                      customer.is_self_registered
+                        ? "badge-success"
+                        : "badge-ghost"
+                    }`}
                   >
                     {customer.is_self_registered ? "Yes" : "No"}
                   </span>
@@ -494,7 +511,11 @@ const CustomerProfile = () => {
                       "N/A"
                     ) : (
                       <span
-                        className={`badge ${customer.ayushmanCardAvailable ? "badge-success" : "badge-error"}`}
+                        className={`badge ${
+                          customer.ayushmanCardAvailable
+                            ? "badge-success"
+                            : "badge-error"
+                        }`}
                       >
                         {customer.ayushmanCardAvailable ? "Yes" : "No"}
                       </span>
@@ -505,7 +526,9 @@ const CustomerProfile = () => {
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-semibold">Customer Consent</span>
+                  <span className="label-text font-semibold">
+                    Customer Consent
+                  </span>
                 </label>
                 {isEditing ? (
                   <input
@@ -518,7 +541,11 @@ const CustomerProfile = () => {
                 ) : (
                   <p className="py-2">
                     <span
-                      className={`badge ${customer.customerConsent ? "badge-success" : "badge-error"}`}
+                      className={`badge ${
+                        customer.customerConsent
+                          ? "badge-success"
+                          : "badge-error"
+                      }`}
                     >
                       {customer.customerConsent ? "Given" : "Not Given"}
                     </span>
@@ -528,7 +555,9 @@ const CustomerProfile = () => {
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-semibold">Terms Accepted</span>
+                  <span className="label-text font-semibold">
+                    Terms Accepted
+                  </span>
                 </label>
                 {isEditing ? (
                   <input
@@ -541,7 +570,9 @@ const CustomerProfile = () => {
                 ) : (
                   <p className="py-2">
                     <span
-                      className={`badge ${customer.termsAccepted ? "badge-success" : "badge-error"}`}
+                      className={`badge ${
+                        customer.termsAccepted ? "badge-success" : "badge-error"
+                      }`}
                     >
                       {customer.termsAccepted ? "Accepted" : "Not Accepted"}
                     </span>
