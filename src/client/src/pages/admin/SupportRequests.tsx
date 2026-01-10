@@ -29,6 +29,8 @@ const AdminSupportRequests = () => {
 
     if (isLoading) return <div className="p-8 text-center"><span className="loading loading-spinner loading-lg"></span></div>;
 
+    const [selectedRequest, setSelectedRequest] = React.useState<any>(null);
+
     return (
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-6 text-gray-800">Operation Support Requests</h1>
@@ -91,7 +93,12 @@ const AdminSupportRequests = () => {
                                                 </button>
                                             </>
                                         )}
-                                        <button className="btn btn-xs btn-ghost text-blue-600">View</button>
+                                        <button
+                                            onClick={() => setSelectedRequest(req)}
+                                            className="btn btn-xs btn-ghost text-blue-600"
+                                        >
+                                            View
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -106,6 +113,74 @@ const AdminSupportRequests = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* View Details Modal */}
+            {selectedRequest && (
+                <dialog id="details_modal" className="modal modal-open">
+                    <div className="modal-box w-11/12 max-w-3xl">
+                        <h3 className="font-bold text-lg mb-4">Request Details</h3>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Patient Info */}
+                            <div>
+                                <h4 className="font-semibold text-gray-700 border-b pb-1 mb-2">Patient Details</h4>
+                                <p><span className="text-gray-500 text-sm">Name:</span> {selectedRequest.patient_name}</p>
+                                <p><span className="text-gray-500 text-sm">Age/Gender:</span> {selectedRequest.age} / {selectedRequest.gender}</p>
+                                <p><span className="text-gray-500 text-sm">Mobile:</span> {selectedRequest.user?.mobile || "N/A"}</p>
+                                <p><span className="text-gray-500 text-sm">Relation:</span> {selectedRequest.relationship || "N/A"}</p>
+                            </div>
+
+                            {/* Address */}
+                            <div>
+                                <h4 className="font-semibold text-gray-700 border-b pb-1 mb-2">Address</h4>
+                                <p><span className="text-gray-500 text-sm">Village:</span> {selectedRequest.address_village || "N/A"}</p>
+                                <p><span className="text-gray-500 text-sm">Block:</span> {selectedRequest.address_block || "N/A"}</p>
+                                <p><span className="text-gray-500 text-sm">District:</span> {selectedRequest.address_district || "N/A"}</p>
+                                <p><span className="text-gray-500 text-sm">State:</span> {selectedRequest.address_state || "N/A"}</p>
+                            </div>
+
+                            {/* Medical Info */}
+                            <div>
+                                <h4 className="font-semibold text-gray-700 border-b pb-1 mb-2">Medical Details</h4>
+                                <p><span className="text-gray-500 text-sm">Hospital:</span> {selectedRequest.hospital_name || "N/A"}</p>
+                                <p><span className="text-gray-500 text-sm">Doctor:</span> {selectedRequest.doctor_name || "N/A"}</p>
+                                <p><span className="text-gray-500 text-sm">Surgery:</span> {selectedRequest.type_of_surgery || "N/A"}</p>
+                                <p><span className="text-gray-500 text-sm">Est Cost:</span> ₹{selectedRequest.estimated_cost || "N/A"}</p>
+                                {selectedRequest.file_url && (
+                                    <div className="mt-2">
+                                        <a
+                                            href={selectedRequest.file_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn btn-xs btn-outline btn-primary"
+                                        >
+                                            View Uploaded Document
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Financial & Emergency */}
+                            <div>
+                                <h4 className="font-semibold text-gray-700 border-b pb-1 mb-2">Financial & Emergency</h4>
+                                <p><span className="text-gray-500 text-sm">Income:</span> ₹{selectedRequest.monthly_income || "N/A"}</p>
+                                <p><span className="text-gray-500 text-sm">Ayushman:</span> {selectedRequest.has_insurance ? "Yes" : "No"}</p>
+                                <p><span className="text-gray-500 text-sm">Prev Assist:</span> {selectedRequest.previous_assistance ? "Yes" : "No"}</p>
+                                <p><span className="text-gray-500 text-sm">NGO Support:</span> {selectedRequest.ngo_support ? "Yes" : "No"}</p>
+                                <div className="mt-2 p-2 bg-gray-50 rounded">
+                                    <p className="text-sm font-medium">Guardian Contact</p>
+                                    <p className="text-xs">{selectedRequest.guardian_name || "N/A"} ({selectedRequest.guardian_relation})</p>
+                                    <p className="text-xs">{selectedRequest.guardian_number || "N/A"}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="modal-action">
+                            <button className="btn" onClick={() => setSelectedRequest(null)}>Close</button>
+                        </div>
+                    </div>
+                </dialog>
+            )}
         </div>
     );
 };

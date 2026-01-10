@@ -192,11 +192,27 @@ model OperationSupportForm {
   type_of_surgery       String?
   estimated_cost        Int?
 
+  // Address
+  address_village  String?
+  address_block    String?
+  address_district String?
+  address_state    String?
+
   // Financial Information
   monthly_income             Int?
   number_of_dependents       Int?
   has_insurance              Boolean? @default(false)
   required_support_percetage Int?
+  previous_assistance        Boolean? @default(false)
+  ngo_support                Boolean? @default(false)
+
+  // Emergency Contact
+  guardian_name     String?
+  guardian_number   String?
+  guardian_relation String?
+
+  // Documents
+  file_url          String?
 
   // Additional Information
   additional_details String?

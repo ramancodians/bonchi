@@ -10,6 +10,8 @@ import { adminMiddleware } from "./middleware/adminMiddleware";
 import HealthCardRouter from "./routes/customer/health-card";
 import BannerRouter from "./routes/banners";
 
+import ListingsRouter from "./routes/listings";
+
 const APIRouter = Router();
 
 APIRouter.use("/auth", AuthRouter);
@@ -18,6 +20,7 @@ APIRouter.use("/support", authMiddleware, SupportRouter);
 APIRouter.use("/agent", authMiddleware, AgentRouter);
 APIRouter.use("/district-manager", authMiddleware, DMRouter);
 APIRouter.use("/customer/health-card", authMiddleware, HealthCardRouter);
-APIRouter.use("/banners", BannerRouter); // Public for GET, Protected inside for POST/DELETE
+APIRouter.use("/banners", BannerRouter);
+APIRouter.use("/listings", authMiddleware, ListingsRouter);
 
 export default APIRouter;

@@ -3,6 +3,7 @@ import Layout from "../../components/layout";
 import CustomerDashboard from "./customer/customerDashboard";
 import Appointments from "./customer/appointments";
 import OperationSupportForm from "./customer/supportform";
+import SurgerySupportForm from "./customer/SurgerySupportForm";
 import MorePage from "./customer/more";
 import SupportList from "./customer/supportList";
 import HealthCard from "../customer/HealthCard";
@@ -18,6 +19,7 @@ const Dashboard = () => {
         <Route path="/support" element={<SupportList />} />
         <Route path="/support/new" element={<OperationSupportForm />} />
         <Route path="/support/:id" element={<OperationSupportForm />} />
+        <Route path="/surgery-support" element={<SurgerySupportForm />} />
         <Route path="/more" element={<MorePage />} />
         <Route path="/profile" element={<Profile />} />
         {/* Placeholders for others */}

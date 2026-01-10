@@ -25,7 +25,13 @@ import AgentList from "./pages/admin/AgentList";
 import CustomerList from "./pages/admin/CustomerList";
 import PartnerList from "./pages/admin/PartnerList";
 import CreatePartner from "./pages/admin/CreatePartner";
+import SurgerySupportForm from "./pages/dashboard/customer/SurgerySupportForm";
 import AdminBannerManager from "./pages/admin/BannerManager";
+import CustomerSupport from "./pages/dashboard/customer/supportList";
+import OperationSupportForm from "./pages/dashboard/customer/supportform";
+import HospitalList from "./pages/listings/HospitalList";
+import LabList from "./pages/listings/LabList";
+import MedicalStoreList from "./pages/listings/MedicalStoreList";
 
 // Agent Pages
 import AgentDashboard from "./pages/agent/Dashboard";
@@ -58,6 +64,12 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/dashboard/*" element={<Dashboard />} />
         <Route path="/shared/*" element={<SharedPages />} />
+
+        {/* Public Listings */}
+        <Route path="/hospitals" element={<HospitalList />} />
+        <Route path="/labs" element={<LabList />} />
+        <Route path="/medical-stores" element={<MedicalStoreList />} />
+
         {/* <Route path="/admin/*" element={<SuperAdminDashboard />} />  Removed conflicting route */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -69,6 +81,12 @@ function App() {
             <Routes>
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="all-agents" element={<AgentList />} />
+              <Route path="support" element={<CustomerSupport />} />
+              <Route path="surgery-support" element={<SurgerySupportForm />} />
+              <Route
+                path="support/create"
+                element={<OperationSupportForm />}
+              />
               <Route path="all-customers" element={<CustomerList />} />
               <Route path="support-requests" element={<AdminSupportRequests />} />
               <Route path="all-partners" element={<PartnerList />} />

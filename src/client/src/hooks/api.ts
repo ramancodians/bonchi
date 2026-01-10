@@ -123,3 +123,15 @@ export const activateHealthCardAPI = async (payload) =>
 export const getBannersAPI = async () =>
   (await axios.get(`${API_ENDPOINT}/banners/public`)).data?.data;
 
+// Listings APIS
+export const getListingsAPI = async (
+  page = 1,
+  limit = 10,
+  type?: "HOSPITAL" | "LAB" | "MEDICAL_STORE",
+  search?: string
+) =>
+  (
+    await axios.get(`${API_ENDPOINT}/listings`, {
+      params: { page, limit, type, search },
+    })
+  ).data?.data;
