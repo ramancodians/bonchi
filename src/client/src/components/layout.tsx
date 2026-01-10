@@ -6,11 +6,21 @@ import {
   AiOutlineFileText,
   AiOutlineMore,
 } from "react-icons/ai";
+import { FaCreditCard } from "react-icons/fa";
 import { useUser } from "../hooks/query";
+import { useEffect } from "react";
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const { data: userData } = useUser();
+  const { data: userData, isLoading } = useUser();
+
+  // Layout will handle auth
+  useEffect(() => {
+    if (!isLoading && !userData) {
+      // Redirect to login if not authenticated
+      window.location.href = "/login";
+    }
+  }, [userData, isLoading]);
 
   const navItems = [
     {
@@ -24,9 +34,9 @@ const Layout = ({ children }) => {
       icon: <AiOutlineCalendar size={24} />,
     },
     {
-      name: "Support",
-      path: "/dashboard/support",
-      icon: <AiOutlineFileText size={24} />,
+      name: "Health Card",
+      path: "/dashboard/health-card",
+      icon: <FaCreditCard size={24} />,
     },
     {
       name: "More",

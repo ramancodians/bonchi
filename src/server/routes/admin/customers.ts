@@ -15,10 +15,11 @@ CustomersRouter.get("/list", async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Get total count of users
-    const total = await prisma.user.count();
+    const total = await prisma.user.count({ where: { role: "CUSTOMER" } });
 
     // Get paginated users (exclude password)
     const users = await prisma.user.findMany({
+      where: { role: "CUSTOMER" },
       skip,
       take: limit,
       orderBy: {
@@ -47,7 +48,7 @@ CustomersRouter.get("/list", async (req, res) => {
       },
     });
 
-    const result: PaginatedResult<typeof users[0]> = {
+    const result: PaginatedResult<(typeof users)[0]> = {
       items: users,
       pagination: {
         total,
@@ -86,6 +87,7 @@ CustomersRouter.get("/search", async (req, res) => {
 
     // Build search conditions
     const searchConditions = {
+      role: "CUSTOMER",
       OR: [
         { first_name: { contains: query, mode: "insensitive" as const } },
         { last_name: { contains: query, mode: "insensitive" as const } },
@@ -132,7 +134,7 @@ CustomersRouter.get("/search", async (req, res) => {
       },
     });
 
-    const result: PaginatedResult<typeof users[0]> = {
+    const result: PaginatedResult<(typeof users)[0]> = {
       items: users,
       pagination: {
         total,
@@ -153,6 +155,29 @@ CustomersRouter.get("/search", async (req, res) => {
       error: error instanceof Error ? error.message : "Unknown error",
     });
   }
-})
+});
+
+CustomersRouter.get("/customers/:customerId", async (req, res) => {
+  try {
+    const { customerId } = req.params;
+    const customer = await prisma.user.findUnique({
+      where: { id: customerId },
+    });
+    if (!customer) {
+      return sendErrorResponse(res, {
+        message: "Customer not found",
+        status: 404,
+      });
+    }
+    sendSuccessResponse(res, { data: customer, status: 200 });
+  } catch (error) {
+    console.error("Error fetching customer:", error);
+    sendErrorResponse(res, {
+      message: "An error occurred while fetching the customer",
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
 
 export default CustomersRouter;

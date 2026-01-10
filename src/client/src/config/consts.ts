@@ -3,13 +3,18 @@ import {
   FaHospital,
   FaUserMd,
   FaPills,
+  FaUserTie,
 } from "react-icons/fa";
 
 export const API_ENDPOINT = import.meta.env.VITE_APP_API;
-
 export const PUBLIC_ROUTES = ["/login", "/register", "/bonchi-mitra"];
 
 export const PARTNER_TYPES = [
+  {
+    label: "District Manager",
+    value: "DISTRICT_CORDINATOR",
+    icon: FaUserTie,
+  },
   {
     label: "Bonchi Mitra",
     value: "BONCHI_MITRA",

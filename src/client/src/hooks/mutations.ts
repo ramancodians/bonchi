@@ -6,6 +6,9 @@ import {
   createPartnerAPI,
   updatePartnerAPI,
   deletePartnerAPI,
+  createAgentUserAPI,
+  dmWalletActionAPI,
+  dmAgentStatusAPI,
 } from "./api";
 import { useMutation } from "@tanstack/react-query";
 
@@ -46,4 +49,19 @@ export const useUpdatePartnerMutation = () =>
 export const useDeletePartnerMutation = () =>
   useMutation({
     mutationFn: deletePartnerAPI,
+  });
+
+export const useCreateAgentUserMutation = () =>
+  useMutation({
+    mutationFn: createAgentUserAPI,
+  });
+
+export const useDMWalletActionMutation = () =>
+  useMutation({
+    mutationFn: dmWalletActionAPI
+  });
+
+export const useDMAgentStatusMutation = () =>
+  useMutation({
+    mutationFn: dmAgentStatusAPI
   });

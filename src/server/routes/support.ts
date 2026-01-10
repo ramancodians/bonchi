@@ -31,11 +31,33 @@ SupportRouter.post("/create", async (req, res) => {
 
 SupportRouter.get("/list", async (req, res) => {
   try {
+    const role = (req as any).userInfo.role;
+    const userId = (req as any).userInfo.userId;
+
+    let whereClause = {};
+
+    // If NOT admin, restrict to own requests
+    if (role !== "SUPER_ADMIN") {
+      whereClause = { user_id: userId };
+    }
+
     const supportList = await prisma.operationSupportForm.findMany({
-      where: {
-        user_id: req.query.user_id as string,
+      where: whereClause,
+      include: {
+        user: {
+          select: {
+            first_name: true,
+            last_name: true,
+            mobile: true,
+            email: true
+          }
+        }
       },
+      orderBy: {
+        created_at: 'desc'
+      }
     });
+
     sendSuccessResponse(res, {
       data: supportList,
     });

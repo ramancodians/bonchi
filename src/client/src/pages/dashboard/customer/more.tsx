@@ -102,14 +102,14 @@ const MorePage: React.FC = () => {
           <MenuItem
             icon={<FiHeart size={20} />}
             label="Health Card"
-            onClick={() => navigate("/dashboard/customer/health-card")}
+            onClick={() => navigate("/dashboard/health-card")}
             iconBgColor="bg-red-50"
             iconColor="text-red-500"
           />
           <MenuItem
             icon={<FiShield size={20} />}
             label="Family Plan"
-            onClick={() => navigate("/dashboard/customer/family-plan")}
+            onClick={() => navigate("/dashboard/family-plan")}
             iconBgColor="bg-green-50"
             iconColor="text-green-500"
           />
@@ -120,7 +120,7 @@ const MorePage: React.FC = () => {
           <MenuItem
             icon={<FiFileText size={20} />}
             label="Operation Support"
-            onClick={() => navigate("/dashboard/customer/supportfor")}
+            onClick={() => navigate("/dashboard/support")}
             iconBgColor="bg-blue-50"
             iconColor="text-blue-500"
           />
@@ -131,14 +131,14 @@ const MorePage: React.FC = () => {
           <MenuItem
             icon={<FiBell size={20} />}
             label="Notifications"
-            onClick={() => navigate("/dashboard/customer/notifications")}
+            onClick={() => navigate("/dashboard/notifications")}
             iconBgColor="bg-yellow-50"
             iconColor="text-yellow-600"
           />
           <MenuItem
             icon={<FiUser size={20} />}
             label="Profile"
-            onClick={() => navigate("/dashboard/customer/profile")}
+            onClick={() => navigate("/dashboard/profile")}
             iconBgColor="bg-gray-100"
             iconColor="text-gray-600"
           />

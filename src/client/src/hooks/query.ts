@@ -6,7 +6,30 @@ import {
   getCustomerListAPI,
   searchCustomersAPI,
   getPartnerListAPI,
+  getAgentDashboardAPI,
+  getAgentWalletAPI,
+  getAgentUsersAPI,
+  getDMDashboardAPI,
+  getDMAgentsAPI,
+  getHealthCardAPI,
+  getBannersAPI,
+  getCustomerProfileAPI,
 } from "./api";
+
+export const useBanners = () =>
+  useQuery({
+    queryKey: ["banners"],
+    queryFn: getBannersAPI,
+  });
+
+// Customer Hooks
+export const useHealthCard = () => {
+  return useQuery({
+    queryKey: ["healthCard"],
+    queryFn: getHealthCardAPI,
+    retry: false,
+  });
+};
 
 export const useUser = () =>
   useQuery({
@@ -35,6 +58,13 @@ export const useCustomerList = (page: number = 1, limit: number = 10) =>
     queryFn: () => getCustomerListAPI(page, limit),
   });
 
+export const useCustomerProfile = (customerId?: string) =>
+  useQuery({
+    queryKey: ["customerProfile", customerId],
+    queryFn: () => getCustomerProfileAPI(customerId!),
+    enabled: !!customerId,
+  });
+
 export const useCustomerSearch = (
   query: string,
   page: number = 1,
@@ -56,4 +86,36 @@ export const usePartnerList = (
   useQuery({
     queryKey: ["partnerList", page, limit, role, search],
     queryFn: () => getPartnerListAPI(page, limit, role, search),
+  });
+
+// Agent Queries
+export const useAgentDashboard = () =>
+  useQuery({
+    queryKey: ["agentDashboard"],
+    queryFn: getAgentDashboardAPI,
+  });
+
+export const useAgentWallet = (page = 1, limit = 20) =>
+  useQuery({
+    queryKey: ["agentWallet", page, limit],
+    queryFn: () => getAgentWalletAPI(page, limit),
+  });
+
+export const useAgentUsers = (page = 1, limit = 10, search?: string) =>
+  useQuery({
+    queryKey: ["agentUsers", page, limit, search],
+    queryFn: () => getAgentUsersAPI(page, limit, search),
+  });
+
+// District Manager Queries
+export const useDMDashboard = () =>
+  useQuery({
+    queryKey: ["dmDashboard"],
+    queryFn: getDMDashboardAPI,
+  });
+
+export const useDMAgents = (page = 1, limit = 10, search?: string) =>
+  useQuery({
+    queryKey: ["dmAgents", page, limit, search],
+    queryFn: () => getDMAgentsAPI(page, limit, search),
   });

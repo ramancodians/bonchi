@@ -7,15 +7,15 @@ const RunRouter = Router();
 
 RunRouter.get("/", async (req, res) => {
   try {
-    const hashedPassword = await hashPassword("raman1234");
+    const hashedPassword = await hashPassword("superadmin1234");
     const user = await prisma.user.create({
       data: {
-        first_name: "Raman",
-        last_name: "Choudhary",
+        first_name: "Super",
+        last_name: "Admin",
         role: "SUPER_ADMIN",
-        email: "raman.choudhary65@gmail.com",
+        email: "super_admin@gmail.com",
         password: hashedPassword,
-        mobile: "9632725300",
+        mobile: "9632725310",
       },
     });
     res.status(201).json({ data: user });

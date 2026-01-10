@@ -1,205 +1,215 @@
+import React from "react";
 import { Helmet } from "react-helmet";
 import {
-  AiOutlineCalendar,
-  AiOutlineGift,
-  AiOutlineMedicineBox,
-} from "react-icons/ai";
-import { FaWhatsapp } from "react-icons/fa";
-import Logo from "./../../../assets/logo.png";
-import { useUser } from "../../../hooks/query";
+  FaHospital,
+  FaMicroscope,
+  FaCalendarAlt,
+  FaAmbulance,
+  FaPhoneAlt,
+  FaTint,
+  FaFileMedical,
+  FaHandHoldingMedical,
+} from "react-icons/fa";
+import { MdLocalPharmacy, MdEmergency } from "react-icons/md";
+import { useUser, useBanners } from "../../../hooks/query";
+import { useNavigate } from "react-router-dom";
 
 const CustomerDashboard = () => {
   const { data: userData, isLoading } = useUser();
+  const { data: banners } = useBanners();
+  const [currentBannerIndex, setCurrentBannerIndex] = React.useState(0);
+  const navigate = useNavigate();
 
-  const cardNumber = "BON6 0501 7";
-  const expiryDate = "Nov 2030";
-  const appointmentsCount = 0;
-  const additionalMembersCount = 0;
+  const SUPPORT_PHONE = "9770808605"; // Placeholder, update if found
 
-  const handleViewCardDetails = () => {
-    console.log("View card details clicked");
+  React.useEffect(() => {
+    if (banners && banners.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [banners]);
+
+  const handleBloodClick = () => {
+    alert(
+      `Service not available in your area.\nFor more detail contact below: ${SUPPORT_PHONE}`
+    );
   };
 
-  const handleBookAppointment = () => {
-    console.log("Book appointment clicked");
-  };
-
-  const handleOffers = () => {
-    console.log("Offers clicked");
-  };
-
-  const handleOneTabAmbulance = () => {
-    console.log("One-tap ambulance clicked");
-  };
-
-  const handleOperationSupport = () => {
-    console.log("Operation support clicked");
-  };
-
-  const handleWhatsApp = () => {
-    console.log("WhatsApp clicked");
+  const handleCallSupport = () => {
+    window.location.href = `tel:${SUPPORT_PHONE}`;
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
   }
-
-  console.log("User Data in Dashboard:", userData);
 
   return (
     <>
       <Helmet>
         <title>Dashboard - Bonchi Cares</title>
       </Helmet>
-      <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
-        <div className="max-w-2xl mx-auto">
-          {/* Greeting */}
-          <div className="mb-4 sm:mb-6">
-            <p className="text-gray-500 text-xs sm:text-sm mb-1">
-              Good Morning
-            </p>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-              {userData?.first_name}
-            </h1>
+
+      <div className="min-h-screen bg-gray-50 pb-24">
+        {" "}
+        {/* Added padding bottom for fixed footer */}
+        {/* Header */}
+        <div className="bg-white p-4 shadow-sm">
+          <p className="text-gray-500 text-sm">Good Morning</p>
+          <h1 className="text-2xl font-bold text-gray-800">
+            {userData?.first_name || "User"}
+          </h1>
+        </div>
+        <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-6">
+          {/* Banner Slider */}
+          <div className="relative rounded-2xl overflow-hidden shadow-lg h-40 sm:h-52 bg-white">
+            <div className="absolute inset-0 flex items-center justify-center">
+              {banners && banners.length > 0 ? (
+                banners.map((banner: any, index: number) => (
+                  <div
+                    key={banner.id}
+                    className={`absolute inset-0 bg-contain bg-center bg-no-repeat transition-opacity duration-1000 ${
+                      index === currentBannerIndex ? "opacity-100" : "opacity-0"
+                    }`}
+                    style={{ backgroundImage: `url(${banner.url})` }}
+                  />
+                ))
+              ) : (
+                <div className="flex items-center justify-center h-full w-full bg-gray-100 text-gray-400">
+                  <span className="text-xl font-bold text-primary opacity-50">
+                    Bonchi Cares
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Health Card */}
-          <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-lg">
-            <div className="flex items-center mb-4">
-              <img src={Logo} alt="Bonchi Cares" className="w-8 h-8 mr-2" />
-              <span className="text-white font-semibold">Bonchi Cares</span>
+          {/* Main Grid Services */}
+          <div className="grid grid-cols-3 gap-4">
+            {/* Row 1 */}
+            <div
+              className="flex flex-col items-center gap-2 cursor-pointer"
+              onClick={() => navigate("/hospitals")}
+            >
+              <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-gray-100">
+                <FaHospital className="text-red-500 text-2xl" />
+              </div>
+              <span className="text-xs font-medium text-gray-700">
+                Hospital
+              </span>
             </div>
 
-            <div className="mb-4">
-              <h2 className="text-white text-2xl sm:text-3xl font-bold tracking-wider mb-2">
-                {cardNumber}
-              </h2>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-200 text-xs">Expires</p>
-                  <p className="text-white text-sm font-medium">{expiryDate}</p>
-                </div>
-                <div className="badge badge-success text-white font-semibold px-3 py-2">
-                  ACTIVE
-                </div>
+            <div
+              className="flex flex-col items-center gap-2 cursor-pointer"
+              onClick={() => navigate("/labs")}
+            >
+              <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-gray-100">
+                <FaMicroscope className="text-blue-500 text-2xl" />
               </div>
+              <span className="text-xs font-medium text-gray-700">Labs</span>
             </div>
 
-            <button
-              onClick={handleViewCardDetails}
-              className="btn w-full text-white font-semibold border-none"
-              style={{ backgroundColor: "#E87835" }}
+            <div
+              className="flex flex-col items-center gap-2 cursor-pointer"
+              onClick={() => navigate("/medical-stores")}
             >
-              View Card Details
-            </button>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
-            <button
-              onClick={handleBookAppointment}
-              className="flex flex-col items-center justify-center bg-white rounded-xl p-2 sm:p-4 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="bg-blue-100 p-2 sm:p-3 rounded-full mb-1 sm:mb-2">
-                <AiOutlineCalendar
-                  size={20}
-                  className="text-blue-600 sm:w-6 sm:h-6"
-                />
+              <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-gray-100">
+                <MdLocalPharmacy className="text-green-500 text-3xl" />
               </div>
-              <span className="text-xs sm:text-sm text-gray-700 font-medium text-center">
+              <span className="text-xs font-medium text-center text-gray-700">
+                Medical Store
+              </span>
+            </div>
+
+            {/* Row 2 */}
+            <div
+              className="flex flex-col items-center gap-2 cursor-pointer"
+              onClick={() => navigate("/dashboard/appointments")}
+            >
+              <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-gray-100">
+                <FaCalendarAlt className="text-blue-600 text-2xl" />
+              </div>
+              <span className="text-xs font-medium text-center text-gray-700">
                 Book Appointment
               </span>
-            </button>
-
-            <button
-              onClick={handleOffers}
-              className="flex flex-col items-center justify-center bg-white rounded-xl p-2 sm:p-4 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="bg-orange-100 p-2 sm:p-3 rounded-full mb-1 sm:mb-2">
-                <AiOutlineGift
-                  size={20}
-                  className="text-orange-600 sm:w-6 sm:h-6"
-                />
-              </div>
-              <span className="text-xs sm:text-sm text-gray-700 font-medium text-center">
-                Offers
-              </span>
-            </button>
-
-            <button
-              onClick={handleOneTabAmbulance}
-              className="flex flex-col items-center justify-center bg-white rounded-xl p-2 sm:p-4 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="bg-red-100 p-2 sm:p-3 rounded-full mb-1 sm:mb-2">
-                <AiOutlineMedicineBox
-                  size={20}
-                  className="text-red-600 sm:w-6 sm:h-6"
-                />
-              </div>
-              <span className="text-xs sm:text-sm text-gray-700 font-medium text-center">
-                One-tap Ambulance
-              </span>
-            </button>
-          </div>
-
-          {/* Loan Banner */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 text-center shadow-md">
-            <p className="text-white font-bold text-xs sm:text-sm uppercase tracking-wide">
-              GET INSTANT LOAN APPROVED WITH L&T FINANCE
-            </p>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">
-            <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm">
-              <p className="text-gray-500 text-xs sm:text-sm mb-1">
-                Appointments
-              </p>
-              <p className="text-blue-600 text-2xl sm:text-3xl font-bold">
-                {appointmentsCount}
-              </p>
             </div>
 
-            <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm">
-              <p className="text-gray-500 text-xs sm:text-sm mb-1">
-                Additional Members
-              </p>
-              <p className="text-orange-600 text-2xl sm:text-3xl font-bold">
-                {additionalMembersCount}
-              </p>
-              <p className="text-gray-400 text-xs">(only one)</p>
+            <div
+              className="flex flex-col items-center gap-2 cursor-pointer"
+              onClick={() => handleCallSupport()}
+            >
+              <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-gray-100">
+                <MdEmergency className="text-red-600 text-3xl" />
+              </div>
+              <span className="text-xs font-medium text-center text-gray-700">
+                24x7 Emergency
+              </span>
+            </div>
+
+            <div
+              className="flex flex-col items-center gap-2 cursor-pointer"
+              onClick={() => handleCallSupport()}
+            >
+              <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-gray-100">
+                <FaAmbulance className="text-teal-600 text-2xl" />
+              </div>
+              <span className="text-xs font-medium text-center text-gray-700">
+                Ambulance (One Tap)
+              </span>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">
-            <button
-              onClick={handleBookAppointment}
-              className="btn btn-primary text-white font-semibold btn-sm sm:btn-md"
-            >
-              <AiOutlineCalendar size={18} className="mr-1 sm:mr-2" />
-              <span className="text-xs sm:text-base">Book Appointment</span>
-            </button>
+          {/* Quick Actions Support */}
+          <div>
+            <h2 className="text-lg font-bold text-gray-800 mb-4">
+              Quick Actions Support
+            </h2>
+            <div className="grid grid-cols-3 gap-4">
+              <div
+                className="flex flex-col items-center gap-2 cursor-pointer"
+                onClick={handleBloodClick}
+              >
+                <div className="w-16 h-16 bg-red-50 rounded-2xl shadow-sm flex items-center justify-center border border-red-100">
+                  <FaTint className="text-red-600 text-2xl" />
+                </div>
+                <span className="text-xs font-medium text-gray-700">Blood</span>
+              </div>
 
-            <button
-              onClick={handleOperationSupport}
-              className="btn text-white font-semibold btn-sm sm:btn-md"
-              style={{ backgroundColor: "#7C3AED" }}
-            >
-              <AiOutlineMedicineBox size={18} className="mr-1 sm:mr-2" />
-              <span className="text-xs sm:text-base">Operation Support</span>
-            </button>
+              <div
+                className="flex flex-col items-center gap-2 cursor-pointer"
+                onClick={() => navigate("/dashboard/support")}
+              >
+                <div className="w-16 h-16 bg-orange-50 rounded-2xl shadow-sm flex items-center justify-center border border-orange-100">
+                  <FaFileMedical className="text-orange-600 text-2xl" />
+                </div>
+                <span className="text-xs font-medium text-center text-gray-700">
+                  Operation Assistance
+                </span>
+              </div>
+
+              <div
+                className="flex flex-col items-center gap-2 cursor-pointer"
+                onClick={() => navigate("/dashboard/surgery-support")}
+              >
+                <div className="w-16 h-16 bg-yellow-50 rounded-2xl shadow-sm flex items-center justify-center border border-yellow-100">
+                  <FaHandHoldingMedical className="text-yellow-700 text-2xl" />
+                </div>
+                <span className="text-xs font-medium text-center text-gray-700">
+                  Surgery Financial Support
+                </span>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Floating WhatsApp Button */}
-        <button
-          onClick={handleWhatsApp}
-          className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 btn btn-circle btn-md sm:btn-lg bg-green-500 hover:bg-green-600 border-none shadow-lg z-40"
-        >
-          <FaWhatsapp size={24} className="text-white sm:w-7 sm:h-7" />
-        </button>
+        {/* Fixed Bottom Action Buttons */}
       </div>
+
+      {/* Removed Fixed Bottom Action Buttons to prevent overlap with Navigation */}
     </>
   );
 };
