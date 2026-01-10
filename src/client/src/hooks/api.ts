@@ -1,6 +1,6 @@
 import axios from "axios";
+import { API_ENDPOINT } from "../config/consts";
 // import { API_ENDPOINT } from "../config/consts";
-export const API_ENDPOINT = "http://localhost:4000/api";
 
 // Auth APIS
 export const registerUserAPI = async (payload) =>
@@ -35,6 +35,9 @@ export const searchCustomersAPI = async (query: string, page = 1, limit = 10) =>
       params: { q: query, page, limit },
     })
   ).data?.data;
+
+export const getCustomerProfileAPI = async (customerId: string) =>
+  (await axios.get(`${API_ENDPOINT}/admin/customers/${customerId}`)).data?.data;
 
 export const getAdminStatsAPI = async () =>
   (await axios.get(`${API_ENDPOINT}/admin/stats`)).data?.data;
@@ -84,31 +87,46 @@ export const createAgentUserAPI = async (payload) =>
   (await axios.post(`${API_ENDPOINT}/agent/create-user`, payload)).data?.data;
 
 export const getAgentUsersAPI = async (page = 1, limit = 10, search?: string) =>
-  (await axios.get(`${API_ENDPOINT}/agent/users`, { params: { page, limit, search } }))
-    .data?.data;
+  (
+    await axios.get(`${API_ENDPOINT}/agent/users`, {
+      params: { page, limit, search },
+    })
+  ).data?.data;
 
 // District Manager APIS
 export const getDMDashboardAPI = async () =>
   (await axios.get(`${API_ENDPOINT}/district-manager/dashboard`)).data?.data;
 
 export const getDMAgentsAPI = async (page = 1, limit = 10, search?: string) =>
-  (await axios.get(`${API_ENDPOINT}/district-manager/agents`, { params: { page, limit, search } }))
-    .data?.data;
+  (
+    await axios.get(`${API_ENDPOINT}/district-manager/agents`, {
+      params: { page, limit, search },
+    })
+  ).data?.data;
 
 export const createDMAgentAPI = async (payload) =>
-  (await axios.post(`${API_ENDPOINT}/district-manager/create-agent`, payload)).data?.data;
+  (await axios.post(`${API_ENDPOINT}/district-manager/create-agent`, payload))
+    .data?.data;
 
 export const dmWalletActionAPI = async ({ agentId, ...payload }) =>
-  (await axios.post(`${API_ENDPOINT}/district-manager/agent/${agentId}/wallet-action`, payload)).data;
+  (
+    await axios.post(
+      `${API_ENDPOINT}/district-manager/agent/${agentId}/wallet-action`,
+      payload
+    )
+  ).data;
 
 export const dmAgentStatusAPI = async ({ agentId, status }) =>
-  (await axios.post(`${API_ENDPOINT}/district-manager/agent/${agentId}/status`, { status })).data;
-
-
-
+  (
+    await axios.post(
+      `${API_ENDPOINT}/district-manager/agent/${agentId}/status`,
+      { status }
+    )
+  ).data;
 
 export const deletePartnerAPI = async (partnerId: string) =>
-  (await axios.delete(`${API_ENDPOINT}/admin/partners/delete/${partnerId}`)).data?.data;
+  (await axios.delete(`${API_ENDPOINT}/admin/partners/delete/${partnerId}`))
+    .data?.data;
 
 // Customer Health Card APIS
 export const getHealthCardAPI = async () =>
@@ -118,7 +136,8 @@ export const getPaymentConfigAPI = async () =>
   (await axios.get(`${API_ENDPOINT}/customer/health-card/config`)).data?.data;
 
 export const activateHealthCardAPI = async (payload) =>
-  (await axios.post(`${API_ENDPOINT}/customer/health-card/activate`, payload)).data;
+  (await axios.post(`${API_ENDPOINT}/customer/health-card/activate`, payload))
+    .data;
 
 export const getBannersAPI = async () =>
   (await axios.get(`${API_ENDPOINT}/banners/public`)).data?.data;

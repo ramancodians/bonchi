@@ -5,7 +5,6 @@ import {
   getSupportByIdAPI,
   getCustomerListAPI,
   searchCustomersAPI,
-
   getPartnerListAPI,
   getAgentDashboardAPI,
   getAgentWalletAPI,
@@ -14,6 +13,7 @@ import {
   getDMAgentsAPI,
   getHealthCardAPI,
   getBannersAPI,
+  getCustomerProfileAPI,
 } from "./api";
 
 export const useBanners = () =>
@@ -30,7 +30,6 @@ export const useHealthCard = () => {
     retry: false,
   });
 };
-
 
 export const useUser = () =>
   useQuery({
@@ -57,6 +56,13 @@ export const useCustomerList = (page: number = 1, limit: number = 10) =>
   useQuery({
     queryKey: ["customerList", page, limit],
     queryFn: () => getCustomerListAPI(page, limit),
+  });
+
+export const useCustomerProfile = (customerId?: string) =>
+  useQuery({
+    queryKey: ["customerProfile", customerId],
+    queryFn: () => getCustomerProfileAPI(customerId!),
+    enabled: !!customerId,
   });
 
 export const useCustomerSearch = (

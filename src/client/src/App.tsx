@@ -48,6 +48,8 @@ import DMCreateAgent from "./pages/district-manager/CreateAgent";
 import MedicalStoreDashboard from "./pages/medical-store/Dashboard";
 import HealthAssistantDashboard from "./pages/health-assistant/Dashboard";
 import HospitalDashboard from "./pages/hospital/Dashboard";
+import { Helmet } from "react-helmet";
+import CustomerProfile from "./pages/dashboard/shared/customer/view-customer";
 
 function App() {
   const { data: userData } = useUser();
@@ -76,25 +78,38 @@ function App() {
         <Route path="/register-partner" element={<PartnerRegistration />} />
 
         {/* Admin Routes - Wrapped in Layout */}
-        <Route path="/admin/*" element={
-          <Layout>
-            <Routes>
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="all-agents" element={<AgentList />} />
-              <Route path="support" element={<CustomerSupport />} />
-              <Route path="surgery-support" element={<SurgerySupportForm />} />
-              <Route
-                path="support/create"
-                element={<OperationSupportForm />}
-              />
-              <Route path="all-customers" element={<CustomerList />} />
-              <Route path="support-requests" element={<AdminSupportRequests />} />
-              <Route path="all-partners" element={<PartnerList />} />
-              <Route path="partners/create" element={<CreatePartner />} />
-              <Route path="banners" element={<AdminBannerManager />} />
-            </Routes>
-          </Layout>
-        } />
+        <Route
+          path="/admin/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="all-agents" element={<AgentList />} />
+                <Route path="support" element={<CustomerSupport />} />
+                <Route
+                  path="surgery-support"
+                  element={<SurgerySupportForm />}
+                />
+                <Route
+                  path="support/create"
+                  element={<OperationSupportForm />}
+                />
+                <Route path="all-customers" element={<CustomerList />} />
+                <Route
+                  path="support-requests"
+                  element={<AdminSupportRequests />}
+                />
+                <Route path="all-partners" element={<PartnerList />} />
+                <Route path="partners/create" element={<CreatePartner />} />
+                <Route
+                  path="customer/:customerId"
+                  element={<CustomerProfile />}
+                />
+                <Route path="banners" element={<AdminBannerManager />} />
+              </Routes>
+            </Layout>
+          }
+        />
 
         {/* Agent Routes - Protected by Logic in Components or Wrapper? 
             Currently bonchi structure seems to use /dashboard/* for authenticated user.
@@ -104,57 +119,75 @@ function App() {
             For now, direct routes.
          */}
         {/* Agent Routes - Wrapped in Layout */}
-        <Route path="/agent/*" element={
-          <Layout>
-            <Routes>
-              <Route path="dashboard" element={<AgentDashboard />} />
-              <Route path="create-user" element={<CreateUser />} />
-              <Route path="users" element={<AgentUsers />} />
-              <Route path="wallet" element={<AgentWallet />} />
-            </Routes>
-          </Layout>
-        } />
+        <Route
+          path="/agent/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="dashboard" element={<AgentDashboard />} />
+                <Route path="create-user" element={<CreateUser />} />
+                <Route path="users" element={<AgentUsers />} />
+                <Route path="wallet" element={<AgentWallet />} />
+              </Routes>
+            </Layout>
+          }
+        />
 
         {/* District Manager Routes - Wrapped in Layout */}
-        <Route path="/district-manager/*" element={
-          <Layout>
-            <Routes>
-              <Route path="dashboard" element={<DMDashboard />} />
-              <Route path="agents" element={<DMAgents />} />
-              <Route path="create-agent" element={<DMCreateAgent />} />
-            </Routes>
-          </Layout>
-        } />
+        <Route
+          path="/district-manager/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="dashboard" element={<DMDashboard />} />
+                <Route path="agents" element={<DMAgents />} />
+                <Route path="create-agent" element={<DMCreateAgent />} />
+              </Routes>
+            </Layout>
+          }
+        />
 
         {/* Medical Store Routes */}
-        <Route path="/medical-store/*" element={
-          <Layout>
-            <Routes>
-              <Route path="dashboard" element={<MedicalStoreDashboard />} />
-            </Routes>
-          </Layout>
-        } />
+        <Route
+          path="/medical-store/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="dashboard" element={<MedicalStoreDashboard />} />
+              </Routes>
+            </Layout>
+          }
+        />
 
         {/* Health Assistant Routes */}
-        <Route path="/health-assistant/*" element={
-          <Layout>
-            <Routes>
-              <Route path="dashboard" element={<HealthAssistantDashboard />} />
-            </Routes>
-          </Layout>
-        } />
+        <Route
+          path="/health-assistant/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route
+                  path="dashboard"
+                  element={<HealthAssistantDashboard />}
+                />
+              </Routes>
+            </Layout>
+          }
+        />
 
         {/* Hospital Routes */}
-        <Route path="/hospital/*" element={
-          <Layout>
-            <Routes>
-              <Route path="dashboard" element={<HospitalDashboard />} />
-            </Routes>
-          </Layout>
-        } />
+        <Route
+          path="/hospital/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="dashboard" element={<HospitalDashboard />} />
+              </Routes>
+            </Layout>
+          }
+        />
 
         <Route path="/404" element={<FourNotFour />} />
-      </Routes >
+      </Routes>
       <ToastContainer
         position="bottom-left"
         autoClose={5000}

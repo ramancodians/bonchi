@@ -8,10 +8,19 @@ import {
 } from "react-icons/ai";
 import { FaCreditCard } from "react-icons/fa";
 import { useUser } from "../hooks/query";
+import { useEffect } from "react";
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const { data: userData } = useUser();
+  const { data: userData, isLoading } = useUser();
+
+  // Layout will handle auth
+  useEffect(() => {
+    if (!isLoading && !userData) {
+      // Redirect to login if not authenticated
+      window.location.href = "/login";
+    }
+  }, [userData, isLoading]);
 
   const navItems = [
     {
@@ -64,10 +73,11 @@ const Layout = ({ children }) => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${location.pathname === item.path
-                ? "text-blue-600"
-                : "text-gray-500"
-                }`}
+              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+                location.pathname === item.path
+                  ? "text-blue-600"
+                  : "text-gray-500"
+              }`}
             >
               {item.icon}
               <span className="text-xs mt-1 font-medium">{item.name}</span>

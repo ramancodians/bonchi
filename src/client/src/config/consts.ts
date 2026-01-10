@@ -6,8 +6,7 @@ import {
   FaUserTie,
 } from "react-icons/fa";
 
-export const API_ENDPOINT = "http://localhost:3000/api";
-
+export const API_ENDPOINT = import.meta.env.VITE_APP_API;
 export const PUBLIC_ROUTES = ["/login", "/register", "/bonchi-mitra"];
 
 export const PARTNER_TYPES = [
