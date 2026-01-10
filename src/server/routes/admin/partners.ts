@@ -292,7 +292,6 @@ PartnersRouter.post("/create", async (req, res) => {
             alternate_mobile_number:
               partnerData.alternate_mobile_number || null,
             email: partnerData.email || null,
-            full_address,
             village_ward: partnerData.village_ward || null,
             block: partnerData.block || null,
             district: partnerData.district || null,
@@ -328,7 +327,7 @@ PartnersRouter.post("/create", async (req, res) => {
           aadhaar_number,
         } = partnerData;
 
-        const healthAssistant = await tx.healthAssistant.create({
+        const healthAssistant = await tx.healthAssistants.create({
           data: {
             user_id: newUser.id,
             profession: profession || "Health Assistant",

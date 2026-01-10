@@ -30,19 +30,20 @@ model User {
   role                           UserRoles              @default(CUSTOMER)
   is_self_registered             Boolean                @default(false)
   addressBooks                   AddressBook[]
-  agent_created_users            agent_created_users?
+  agent_created_users            AgentCreatedUsers?
   bandDetails                    BandDetails[]
   issued_cards                   BonchiCard[]           @relation("issued_cards")
   partner_bonchi_mitras_created  BonchiMitraPartner[]   @relation("bonchi_mitras_created_by_user")
   bonchi_mitra_partner           BonchiMitraPartner?    @relation("bonchi_mitra_partner_to_user")
-  district_coordinators          district_coordinators?
-  health_assistants              health_assistants?
+  district_coordinators          DistrictCoordinators?
+  health_assistants              HealthAssistants?
   partner_hospitals_created      HospitalPartner[]      @relation("hospitals_partner_created_by_user")
   hospital_partner               HospitalPartner?       @relation("hospital_partner_to_user")
   partner_medical_stores_created MedicalStore[]         @relation("medical_stores_created_by_user")
   medical_store                  MedicalStore?          @relation("medical_store_to_user")
   operationSupportForms          OperationSupportForm[]
-  payments                       payments[]
+  payments                       Payments[]
+  fileUploads                    FileUpload[]
 
   @@index([email])
   @@map("users")
@@ -113,7 +114,7 @@ model BonchiCard {
   activation_date DateTime?
   status          String     @default("pending")
   user            User       @relation("issued_cards", fields: [user_id], references: [id], onDelete: Cascade)
-  payments        payments[]
+  payments        Payments[]
 
   @@index([user_id])
   @@map("bonchi_cards")
@@ -184,38 +185,38 @@ model MedicalStore {
 }
 
 model BonchiMitraPartner {
-  id                            String                @id @default(cuid())
-  created_at                    DateTime              @default(now())
-  updated_at                    DateTime              @updatedAt
-  user_id                       String                @unique
+  id                            String              @id @default(cuid())
+  created_at                    DateTime            @default(now())
+  updated_at                    DateTime            @updatedAt
+  user_id                       String              @unique
   created_by_user_id            String?
-  aadhaar_number                String                @unique
-  pan_number                    String                @unique
+  aadhaar_number                String              @unique
+  pan_number                    String              @unique
   live_photo_url                String?
   shop_photo_url                String?
   shop_centre_name              String
   business_types                BusinessType[]
   business_other                String?
   reporting_district_manager    String?
-  agent_code                    String                @unique
+  agent_code                    String              @unique
   area_type                     AreaType?
   bank_account_holder_name      String
   bank_account_number           String
   bank_ifsc_code                String
   bank_name                     String
   upi_id                        String?
-  agent_agreement_accepted      Boolean               @default(false)
-  commission_structure_accepted Boolean               @default(false)
-  data_privacy_consent          Boolean               @default(false)
-  kyc_status                    KYCStatus             @default(PENDING)
-  agent_status                  AgentStatus           @default(ACTIVE)
-  is_self_registered            Boolean               @default(false)
-  addresses                     AddressBook[]         @relation("bonchi_mitra_partner_addresses")
-  agent_created_users           agent_created_users[]
-  agent_transactions            agent_transactions[]
-  agent_wallets                 agent_wallets?
-  created_by_user               User?                 @relation("bonchi_mitras_created_by_user", fields: [created_by_user_id], references: [id])
-  user                          User                  @relation("bonchi_mitra_partner_to_user", fields: [user_id], references: [id], onDelete: Cascade)
+  agent_agreement_accepted      Boolean             @default(false)
+  commission_structure_accepted Boolean             @default(false)
+  data_privacy_consent          Boolean             @default(false)
+  kyc_status                    KYCStatus           @default(PENDING)
+  agent_status                  AgentStatus         @default(ACTIVE)
+  is_self_registered            Boolean             @default(false)
+  addresses                     AddressBook[]       @relation("bonchi_mitra_partner_addresses")
+  agent_created_users           AgentCreatedUsers[]
+  agent_transactions            AgentTransactions[]
+  agent_wallets                 AgentWallets?
+  created_by_user               User?               @relation("bonchi_mitras_created_by_user", fields: [created_by_user_id], references: [id])
+  user                          User                @relation("bonchi_mitra_partner_to_user", fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
   @@index([agent_code])
@@ -237,7 +238,7 @@ model BandDetails {
   @@map("band_details")
 }
 
-model agent_created_users {
+model AgentCreatedUsers {
   id                    String             @id
   created_at            DateTime           @default(now())
   agent_id              String
@@ -252,7 +253,7 @@ model agent_created_users {
   @@index([user_id])
 }
 
-model agent_settings {
+model Agent {
   id                          String   @id
   updated_at                  DateTime
   registration_fee            Decimal  @default(0.00) @db.Decimal(10, 2)
@@ -262,7 +263,7 @@ model agent_settings {
   updated_by                  String?
 }
 
-model agent_transactions {
+model AgentTransactions {
   id                    String             @id
   created_at            DateTime           @default(now())
   agent_id              String
@@ -279,7 +280,7 @@ model agent_transactions {
   @@index([agent_id])
 }
 
-model agent_wallets {
+model AgentWallets {
   id                    String             @id
   created_at            DateTime           @default(now())
   updated_at            DateTime
@@ -292,7 +293,7 @@ model agent_wallets {
   @@index([agent_id])
 }
 
-model district_coordinators {
+model DistrictCoordinators {
   id                 String      @id
   created_at         DateTime    @default(now())
   updated_at         DateTime
@@ -307,7 +308,7 @@ model district_coordinators {
   @@index([user_id])
 }
 
-model health_assistants {
+model HealthAssistants {
   id               String    @id
   created_at       DateTime  @default(now())
   updated_at       DateTime
@@ -327,7 +328,7 @@ model health_assistants {
   @@index([user_id])
 }
 
-model payments {
+model Payments {
   id             String      @id
   created_at     DateTime    @default(now())
   user_id        String
@@ -343,6 +344,32 @@ model payments {
 
   @@index([payment_id])
   @@index([user_id])
+}
+
+model BannerItems {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String
+  imageUrl  String
+  linkUrl   String?
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+
+  @@map("banner_items")
+}
+
+model FileUpload {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  fileName   String
+  fileUrl    String
+  fileType   String
+  uploadedBy String?
+  user       User?    @relation(fields: [uploadedBy], references: [id])
+
+  @@map("file_uploads")
 }
 
 enum Gender {

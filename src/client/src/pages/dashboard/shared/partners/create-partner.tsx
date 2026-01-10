@@ -34,13 +34,9 @@ const CreatePartner: React.FC = () => {
                     ? "border-primary bg-primary/50"
                     : "border-base-300 hover:border-primary/50"
                 }`}
-                }`}
               >
                 <div className="card-body items-center text-center">
                   <Icon
-                    className={`text-6xl mb-4 ${
-                      isSelected ? "text-primary" : "text-base-content/70"
-                    }`}
                     className={`text-6xl mb-4 ${
                       isSelected ? "text-primary" : "text-base-content/70"
                     }`}

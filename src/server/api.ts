@@ -11,10 +11,12 @@ import HealthCardRouter from "./routes/customer/health-card";
 import BannerRouter from "./routes/banners";
 
 import ListingsRouter from "./routes/listings";
+import RunRouter from "./routes/admin/run";
 
 const APIRouter = Router();
 
 APIRouter.use("/auth", AuthRouter);
+APIRouter.use("/run", RunRouter);
 APIRouter.use("/admin", [authMiddleware, adminMiddleware], AdminRouter);
 APIRouter.use("/support", authMiddleware, SupportRouter);
 APIRouter.use("/agent", authMiddleware, AgentRouter);

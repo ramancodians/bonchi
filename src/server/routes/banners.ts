@@ -1,61 +1,122 @@
 import { Router } from "express";
 import prisma from "../db";
 import { sendErrorResponse, sendSuccessResponse } from "../utils/responseUtil";
+import { adminMiddleware } from "../middleware/adminMiddleware";
 
 const BannerRouter = Router();
 
-// Middleware to check for Admin (optional, or applied in api.ts)
-// For now, I'll rely on the caller to protect admin routes or check role here.
+BannerRouter.get("/", async (req, res) => {
+  try {
+    const banners = await prisma.bannerItems.findMany({
+      orderBy: {
+        order: "asc",
+      },
+    });
 
-// GET All Active Banners (Public/Customer)
-BannerRouter.get("/public", async (req, res) => {
-    try {
-        const banners = await prisma.bannerImage.findMany({
-            where: { isActive: true },
-            orderBy: { order: 'asc' }, // or created_at desc
-        });
-        sendSuccessResponse(res, { data: banners });
-    } catch (error) {
-        sendErrorResponse(res, { message: "Failed to fetch banners", status: 500 });
-    }
+    return sendSuccessResponse(res, { data: banners });
+  } catch (error) {
+    return sendErrorResponse(res, {
+      message: "Failed to retrieve banners",
+      status: 500,
+    });
+  }
 });
 
-// Admin: Upload Banner
-BannerRouter.post("/upload", async (req, res) => {
-    try {
-        // Auth check manually for now if not wrapped
-        // if ((req as any).userInfo?.role !== 'SUPER_ADMIN') return 403...
-        // Assuming this route is mounted under a protected path or we check here.
-        // Let's assume protected by authMiddleware but need to check role.support
+BannerRouter.post("/", adminMiddleware, async (req, res) => {
+  try {
+    const { title, imageUrl, linkUrl, isActive, order } = req.body;
 
-        const { imageBase64 } = req.body;
-        if (!imageBase64) {
-            return sendErrorResponse(res, { message: "No image provided", status: 400 });
-        }
-
-        const banner = await prisma.bannerImage.create({
-            data: {
-                url: imageBase64,
-                isActive: true
-            }
-        });
-
-        sendSuccessResponse(res, { message: "Banner uploaded", data: banner });
-    } catch (error) {
-        console.error("Upload error:", error);
-        sendErrorResponse(res, { message: "Upload failed", status: 500 });
+    // Validate required fields
+    if (!title || !imageUrl) {
+      return sendErrorResponse(res, {
+        message: "Title and imageUrl are required",
+        status: 400,
+      });
     }
+
+    const newBanner = await prisma.bannerItems.create({
+      data: {
+        title,
+        imageUrl,
+        linkUrl: linkUrl || null,
+        isActive: isActive !== undefined ? isActive : true,
+        order: order || 0,
+      },
+    });
+
+    return sendSuccessResponse(res, { data: newBanner, status: 201 });
+  } catch (error) {
+    return sendErrorResponse(res, {
+      message: "Failed to create banner",
+      status: 500,
+    });
+  }
 });
 
-// Admin: Delete Banner
-BannerRouter.delete("/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        await prisma.bannerImage.delete({ where: { id } });
-        sendSuccessResponse(res, { message: "Banner deleted" });
-    } catch (error) {
-        sendErrorResponse(res, { message: "Delete failed", status: 500 });
+BannerRouter.put("/:id", adminMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, imageUrl, linkUrl, isActive, order } = req.body;
+
+    // Check if banner exists
+    const existingBanner = await prisma.bannerItems.findUnique({
+      where: { id },
+    });
+
+    if (!existingBanner) {
+      return sendErrorResponse(res, {
+        message: "Banner not found",
+        status: 404,
+      });
     }
+
+    const updatedBanner = await prisma.bannerItems.update({
+      where: { id },
+      data: {
+        ...(title && { title }),
+        ...(imageUrl && { imageUrl }),
+        ...(linkUrl !== undefined && { linkUrl }),
+        ...(isActive !== undefined && { isActive }),
+        ...(order !== undefined && { order }),
+      },
+    });
+
+    return sendSuccessResponse(res, { data: updatedBanner });
+  } catch (error) {
+    return sendErrorResponse(res, {
+      message: "Failed to update banner",
+      status: 500,
+    });
+  }
+});
+
+BannerRouter.delete("/:id", adminMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if banner exists
+    const existingBanner = await prisma.bannerItems.findUnique({
+      where: { id },
+    });
+
+    if (!existingBanner) {
+      return sendErrorResponse(res, {
+        message: "Banner not found",
+        status: 404,
+      });
+    }
+
+    await prisma.bannerItems.delete({
+      where: { id },
+    });
+
+    return sendSuccessResponse(res, { data: null });
+  } catch (error) {
+    return sendErrorResponse(res, {
+      message: "Failed to delete banner",
+      status: 500,
+    });
+  }
 });
 
 export default BannerRouter;

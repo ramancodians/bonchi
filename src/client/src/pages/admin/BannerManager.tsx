@@ -4,10 +4,21 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { Trash2, Upload, Loader } from "lucide-react";
 import { API_ENDPOINT } from "../../config/consts";
+import { FaPlus, FaTrash } from "react-icons/fa";
+import { Modal } from "../../components/modal";
+import { FileUpload } from "../../components/FormElements/FileUpload";
 
 const AdminBannerManager = () => {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [bannerForm, setBannerForm] = useState({
+    title: "",
+    imageUrl: "",
+    linkUrl: "",
+    isActive: true,
+    order: 0,
+  });
 
   // Fetch Banners
   const { data: banners, isLoading } = useQuery({
@@ -64,8 +75,76 @@ const AdminBannerManager = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleFileUploadComplete = (uploadedFile: any) => {
+    console.log("File uploaded:", uploadedFile);
+    setBannerForm((prev) => ({
+      ...prev,
+      imageUrl: uploadedFile.fileUrl,
+    }));
+    toast.success("File uploaded successfully!");
+  };
+
+  const handleSubmitBanner = () => {
+    if (!bannerForm.title || !bannerForm.imageUrl) {
+      toast.error("Please provide title and upload an image");
+      return;
+    }
+
+    console.log("Submitting banner:", bannerForm);
+    // TODO: Add mutation to create banner with the uploaded file
+    toast.success("Banner created successfully!");
+    setIsModalOpen(false);
+    setBannerForm({
+      title: "",
+      imageUrl: "",
+      linkUrl: "",
+      isActive: true,
+      order: 0,
+    });
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setBannerForm({
+      title: "",
+      imageUrl: "",
+      linkUrl: "",
+      isActive: true,
+      order: 0,
+    });
+  };
+
   return (
     <div className="p-6">
+      <div className="flex gap-4">
+        <div className="w-8/12 bg-base-100 rounded-2xl p-4 flex-col ">
+          <h1>Preview</h1>
+        </div>
+        <div className="w-4/12 bg-base-100 rounded-2xl p-4 flex-col">
+          <h1>Banner Settings</h1>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2 items-center border p-2 rounded-xl border-gray-300">
+              <div className="w-10 h-10 bg-red-300 rounded-xl"></div>
+              <div className="flex-1">
+                <p>Title</p>
+                <p>Description</p>
+              </div>
+              <div>
+                <button className="btn btn-error btn-sm btn-ghost">
+                  <FaTrash />
+                </button>
+              </div>
+            </div>
+            <div
+              className="flex justify-center items-center border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors p-4"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <FaPlus className="text-2xl text-gray-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <h1 className="text-2xl font-bold mb-6 text-gray-800">
         Banner Management
       </h1>
@@ -131,6 +210,121 @@ const AdminBannerManager = () => {
           No banners uploaded yet.
         </div>
       )}
+
+      {/* Add Banner Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title="Add New Banner"
+        size="lg"
+        actions={
+          <>
+            <button className="btn" onClick={handleCloseModal}>
+              Cancel
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={handleSubmitBanner}
+              disabled={!bannerForm.title || !bannerForm.imageUrl}
+            >
+              Create Banner
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-6">
+          <div>
+            <label className="label">
+              <span className="label-text font-semibold">Banner Title *</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              placeholder="Enter banner title"
+              value={bannerForm.title}
+              onChange={(e) =>
+                setBannerForm((prev) => ({ ...prev, title: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <label className="label">
+              <span className="label-text font-semibold">
+                Upload Banner Image *
+              </span>
+            </label>
+            <FileUpload
+              onUploadComplete={handleFileUploadComplete}
+              accept="image/*"
+              maxSize={5 * 1024 * 1024}
+            />
+          </div>
+          {bannerForm.imageUrl && (
+            <div>
+              <label className="label">
+                <span className="label-text font-semibold">Preview</span>
+              </label>
+              <img
+                src={bannerForm.imageUrl}
+                alt="Banner preview"
+                className="w-full rounded-lg border border-gray-200"
+              />
+            </div>
+          )}
+          <div>
+            <label className="label">
+              <span className="label-text font-semibold">Link URL</span>
+            </label>
+            <input
+              type="url"
+              className="input input-bordered w-full"
+              placeholder="https://example.com (optional)"
+              value={bannerForm.linkUrl}
+              onChange={(e) =>
+                setBannerForm((prev) => ({ ...prev, linkUrl: e.target.value }))
+              }
+            />
+          </div>
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="label">
+                <span className="label-text font-semibold">Display Order</span>
+              </label>
+              <input
+                type="number"
+                className="input input-bordered w-full"
+                placeholder="0"
+                value={bannerForm.order}
+                onChange={(e) =>
+                  setBannerForm((prev) => ({
+                    ...prev,
+                    order: parseInt(e.target.value) || 0,
+                  }))
+                }
+              />
+            </div>
+            <div className="flex-1">
+              <label className="label">
+                <span className="label-text font-semibold">Status</span>
+              </label>
+              <label className="cursor-pointer label">
+                <span className="label-text">Active</span>
+                <input
+                  type="checkbox"
+                  className="toggle toggle-primary"
+                  checked={bannerForm.isActive}
+                  onChange={(e) =>
+                    setBannerForm((prev) => ({
+                      ...prev,
+                      isActive: e.target.checked,
+                    }))
+                  }
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
