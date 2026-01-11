@@ -13,6 +13,7 @@ import {
 import { MdLocalPharmacy, MdEmergency } from "react-icons/md";
 import { useUser, useBanners } from "../../../hooks/query";
 import { useNavigate } from "react-router-dom";
+import AddCard from "../../../components/addCard";
 
 const CustomerDashboard = () => {
   const { data: userData, isLoading } = useUser();
@@ -66,6 +67,8 @@ const CustomerDashboard = () => {
           </h1>
         </div>
         <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-6">
+          <AddCard />
+
           {/* Banner Slider */}
           <div className="relative rounded-2xl overflow-hidden shadow-lg h-40 sm:h-52 bg-white">
             <div className="absolute inset-0 flex items-center justify-center">

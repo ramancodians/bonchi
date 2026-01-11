@@ -7,7 +7,7 @@ const RunRouter = Router();
 
 RunRouter.get("/", async (req, res) => {
   try {
-    const hashedPassword = await hashPassword("superadmin1234");
+    const hashedPassword = await hashPassword("test1234");
     const user = await prisma.user.create({
       data: {
         first_name: "Raman",

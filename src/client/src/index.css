@@ -2,5 +2,7 @@
 @plugin "daisyui";
 
 @theme {
-  /* You can add custom theme values here */
+  /* Bonchi brand colors */
+  --color-bonchi-blue: #073D9F;
+  --color-bonchi-orange: #AA551C;
 }
